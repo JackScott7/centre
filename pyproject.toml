@@ -1,12 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-author = "Jack Scott"
 name = "centre"
 version = "0.1.0"
 description = "Your Window Position Manager"
-requires-python = ">=3.14"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Jack Scott", email = "cloner.bl12@gmail.com" }
+]
+license = { file = "LICENSE" }
 dependencies = [
     "keyboard>=0.13.5",
     "pyautogui>=0.9.54",
-    "pygetwindow>=0.0.9",
-    "pynput>=1.8.2",
+    "pygetwindow>=0.0.9"
 ]
+
+[project.urls]
+Homepage = "https://github.com/JackScott7/centre"
+Repository = "https://github.com/JackScott7/centre"
+Issues = "https://github.com/JackScott7/centre/issues"
+
+[project.scripts]
+centre = "centre.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
