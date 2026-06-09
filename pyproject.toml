@@ -1,0 +1,12 @@
+[project]
+author = "Jack Scott"
+name = "centre"
+version = "0.1.0"
+description = "Your Window Position Manager"
+requires-python = ">=3.14"
+dependencies = [
+    "keyboard>=0.13.5",
+    "pyautogui>=0.9.54",
+    "pygetwindow>=0.0.9",
+    "pynput>=1.8.2",
+]
