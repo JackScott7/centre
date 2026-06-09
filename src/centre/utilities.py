@@ -31,6 +31,9 @@ class Utilities:
             return
         app_poses = presets[current_preset]
 
+        if not app_poses.get('Default_Position', None):
+            return
+
         for key in app_poses.keys():
             if key in window.title:
                 window.resizeTo(app_poses[key]['SIZE_X'], app_poses[key]['SIZE_Y'])
@@ -40,8 +43,6 @@ class Utilities:
             if window:
                 window.resizeTo(app_poses['Default_Position']['SIZE_X'], app_poses['Default_Position']['SIZE_Y'])
                 window.moveTo(app_poses['Default_Position']['LEFT'], app_poses['Default_Position']['TOP'])
-            # else:
-            #     logging.error("No active window found.")
 
     @staticmethod
     def refresh_hotkey(centre) -> None:
