@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,11 +11,19 @@ requires-python = ">=3.10"
 authors = [
     { name = "Jack Scott", email = "cloner.bl12@gmail.com" }
 ]
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "keyboard>=0.13.5",
     "pyautogui>=0.9.54",
-    "pygetwindow>=0.0.9"
+    "pygetwindow>=0.0.9",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: Microsoft :: Windows",
+    "Environment :: Win32 (MS Windows)",
 ]
 
 [project.urls]
