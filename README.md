@@ -1,99 +1,178 @@
-# This is Centre
-___
-Centre is your Window Position Manager.
+# Centre
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+---
 
-So what's a `Window Position Manager`?
+Centre is your window position manager.
 
 Take control of your windows by choosing where they appear, how they’re arranged, and what size they should be.
 
-Consistency is `Centre`'s goal.
+Consistency is `centre`'s goal.
 
-## What Centre's tries to achieve
-___
-I myself have a very deep OCD, 
-where even apps not being aligned on my desktop will make me ache.
+## What Centre Tries to Achieve
 
-So I tried to make centre as easy as
-having a single config file on each desktop device you have, will
-make your life super easy to have everything setup.
+---
+Centre was built for users who want consistent window placement across desktop sessions.
 
 # Install
-___
-```bash
+
+---
+
+```PowerShell
 pip install centre
 ```
 
-## Make the process persistent
-___
-We are going to the following to make `centr` persistent when booting the machine or restarting it.
-- Windows Task Scheduler
+## Start Centre Automatically
 
-...
+---
+To do that, create a Windows Task Scheduler task.
+
+Run the following command as Administrator in PowerShell/cmd to create a Task in Windows Task Scheduler.
+```PowerShell
+schtasks /Create /TN "centre" /SC ONLOGON /TR "centre -s" /RL LIMITED /F
+```
 
 # Usage
 
-This is the script's main starting point. when you got everything setup (window configuration is done) and ready to start the listener.
-Start as a background process.
-___
+After your window configuration is ready, start the listener:
+---
+
 ```bash
 $ centre -s
 ```
 
 # The CLI
-___
-You can use `centre` CLI to find out window's titles, sizes and screen positions.
-The CLI will help you to accurately find your window's title to set the exact position you want on the screen with your desired size.
+
+---
+You can use `centre` CLI to find out window titles, sizes and screen positions.
+The CLI will help you to accurately find your window title to set the exact position you want on the screen with your
+desired size.
 
 Examples:
-```bash
-# List all active windows titles
-$ centre -l
+
+```PowerShell
+# List all active window titles
+centre -l
 ```
 
 ## Refresh your config without restarting
-___
-You can use the predefined shortcut `ctrl+alt+r` to reload/refresh your config without restarting the background process.
+
+---
+You can use the predefined shortcut `ctrl+alt+r` to reload/refresh your config without restarting the background
+process.
 This is useful when trying to edit your config.
 
-# Window Configuration (centre.json)
-___
-Default config comes like the following example:
+# Window Configuration (config.json)
 
-- The Resolution below will be based on your display resolution
+---
+Your config will be created at the first startup in:
+
+CMD
+
+```cmd
+%USERPROFILE%\.centre\config.json
+```
+
+PowerShell
+
+```PowerShell
+$env:USERPROFILE\.centre\config.json
+```
+
+The default config includes these values:
+
+- The resolution key is based on your display resolution.
+
 ```json
 {
-    "1920x1080": {},
-    "predefined_bindings": {
+    "presets": {
+        "1920x1080": {}
+    },
+    "predefined_keybindings": {
         "enabled": true,
         "bindings": {
-            "refresh": "ctrl+alt+r"
+            "refresh": "ctrl+alt+r",
+            "center": "ctrl+alt+d",
+            "minimize": "ctrl+alt+m"
         }
+    },
+    "logging": false
+}
+```
+
+**_You can change any predefined keyboard shortcut, for example setting refresh to ctrl+shift+f10._**
+
+---
+Window presets should be placed inside the "presets" object in `config.json`.
+
+A window preset should look like this:
+
+```json
+{
+    "PS7": {
+        "LEFT": 224,
+        "TOP": 168,
+        "SIZE_X": 1473,
+        "SIZE_Y": 697
+    },
+    "Default_Position": {
+        "LEFT": 25,
+        "TOP": 34,
+        "SIZE_X": 1860,
+        "SIZE_Y": 980
     }
 }
+
 ```
-___
-A Window example be like:
+
+- Be sure to add `Default_Position` in your presets under the generated default resolution.
+  When Centre does not find the active window in your presets, it uses `Default_Position` as the fallback size and position.
+
+- `Default_Position` is useful when you have a list of apps that you have set a custom position for,
+  but intend to keep all other apps in one specific location.
+
+Your final config should look something like this:
+
 ```json
-"PS7": {
-    "LEFT": 224,
-    "TOP": 168,
-    "SIZE_X": 1473,
-    "SIZE_Y": 697
-},
-"Default_Position": {
-    "LEFT": 25,
-    "TOP": 34,
-    "SIZE_X": 1860,
-    "SIZE_Y": 980
+{
+    "presets": {
+        "1920x1080": {
+            "PS7": {
+                "LEFT": 224,
+                "TOP": 168,
+                "SIZE_X": 1473,
+                "SIZE_Y": 697
+            },
+            "Default_Position": {
+                "LEFT": 25,
+                "TOP": 34,
+                "SIZE_X": 1860,
+                "SIZE_Y": 980
+            }
+        }
+    },
+    "predefined_keybindings": {
+        "enabled": true,
+        "bindings": {
+            "refresh": "ctrl+alt+r",
+            "center": "ctrl+alt+d",
+            "minimize": "ctrl+alt+m"
+        }
+    },
+    "logging": false
 }
 ```
-Default_Position: ...
-
 
 # Caveats
-___
 
-So when you try out `centre` you WILL find that some windows even while having the same exact Position and Size will on screen, will overlap each other.
+---
 
-This is due to some apps having a bigger actual Window than the rendered UI.
+Some windows may overlap even when they use the same configured position and size.
+
+This is due to some apps having a bigger actual window than the rendered UI.
+
+# License
+
+---
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
