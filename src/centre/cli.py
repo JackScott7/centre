@@ -8,14 +8,13 @@ def main() -> None:
                                     ' for consistent app placement, sizing, and desktop layout control.')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-l', '--list', action='store_true', help='List Window Titles')
+    group.add_argument('-l', '--list', action='store_true', help='List Window Title, Size and Position')
     group.add_argument('-s', '--start', action='store_true', help='Start Centre as background process')
     group.add_argument('-c', '--read-config', action='store_true', help='Read config file and print out')
 
     args = parser.parse_args()
 
     ctr = Centre()
-    ctr.load_config()
     if args.list:
         titles = Utilities.list_window_titles()
         print(titles)
@@ -27,5 +26,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 __all__ = ["Centre"]

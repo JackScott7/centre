@@ -1,3 +1,4 @@
+import json
 import os
 import pygetwindow as gw
 from pyautogui import size as resolution_size
@@ -5,7 +6,7 @@ from pyautogui import size as resolution_size
 
 class Utilities:
     @staticmethod
-    def entry_path(file: str):
+    def entry_path(file: str) -> str:
         return os.path.dirname(os.path.abspath(file))
 
     @staticmethod
@@ -49,10 +50,22 @@ class Utilities:
         centre.load_config()
 
     @staticmethod
-    def list_window_titles() -> list[str]:
+    def list_window_titles() -> str:
         """
         Gets a list of all window titles.
 
         :return: list of window titles
         """
-        return [x.title for x in gw.getAllWindows() if x.title]
+        return json.dumps([
+            {
+                "title": x.title,
+                "size": {
+                    "width": x.size.width,
+                    "height": x.size.height
+                },
+                "top": x.top,
+                "left": x.left,
+                "bottom": x.bottom,
+                "right": x.right,
+            } for x in gw.getAllWindows() if x.title
+        ], indent=4)
