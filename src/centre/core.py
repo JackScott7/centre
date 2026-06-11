@@ -76,7 +76,6 @@ class Centre:
         try:
             with open(self.config_file_path, "r") as f:
                 self.__config = json.load(f)
-                self.__assign_keyboard_bindings(self.__get_keybindings())
         except FileNotFoundError:
             raise FileNotFoundError(f"Config file not found at '{self.config_file_path}'\nPlease run centre again.")
         except json.decoder.JSONDecodeError as parse_error:
