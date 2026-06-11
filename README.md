@@ -1,6 +1,8 @@
 # Centre
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI version](https://badge.fury.io/py/centre.svg)](https://badge.fury.io/py/centre)
+[![Python Versions](https://img.shields.io/pypi/pyversions/centre.svg)](https://pypi.org/project/centre/)
 ---
 
 Centre is your window position manager.
@@ -37,30 +39,31 @@ schtasks /Create /TN "centre" /SC ONLOGON /TR "centre -s" /RL LIMITED /F
 After your window configuration is ready, start the listener:
 ---
 
-```bash
-$ centre -s
+```PowerShell
+centre -s
 ```
 
 # The CLI
 
 ---
-You can use `centre` CLI to find out window titles, sizes and screen positions.
-The CLI will help you to accurately find your window title to set the exact position you want on the screen with your
-desired size.
+You can use the `centre` CLI to inspect open windows and read the active
+configuration.
 
 Examples:
 
 ```PowerShell
-# List all active window titles
+# List active windows, including their titles, sizes, and positions
 centre -l
+
+# Print the loaded configuration
+centre -c
 ```
 
-## Refresh your config without restarting
+## Automatic Configuration Reload
 
 ---
-You can use the predefined shortcut `ctrl+alt+r` to reload/refresh your config without restarting the background
-process.
-This is useful when trying to edit your config.
+While Centre is running, it watches `config.json` for changes. Saving the file
+causes Centre to read the configuration again without restarting the process.
 
 # Window Configuration (config.json)
 
@@ -91,25 +94,41 @@ The default config includes these values:
     "predefined_keybindings": {
         "enabled": true,
         "bindings": {
-            "refresh": "ctrl+alt+r",
             "center": "ctrl+alt+d",
-            "minimize": "ctrl+alt+m"
+            "minimize": "ctrl+alt+m",
+            "capture": "ctrl+alt+p"
         }
     },
     "logging": false
 }
 ```
 
-**_You can change any predefined keyboard shortcut, for example setting refresh to ctrl+shift+f10._**
+You can change any predefined keyboard shortcut in the `bindings` object.
 
 ---
 Window presets should be placed inside the "presets" object in `config.json`.
+
+## Capture a Window
+
+Focus the window you want to capture and press `ctrl+alt+p`. Centre stores its
+current position and size under the current display resolution.
+
+Captured windows are identified by their executable name without the `.exe`
+extension. The name is normalized to uppercase, for example:
+
+- `notepad++.exe` becomes `NOTEPAD++`
+- `WindowsTerminal.exe` becomes `WINDOWSTERMINAL`
+
+Executable names remain stable when an application changes its window title,
+such as when switching tabs in Notepad++.
+
+Capturing the same application again updates its existing preset.
 
 A window preset should look like this:
 
 ```json
 {
-    "PS7": {
+    "NOTEPAD++": {
         "LEFT": 224,
         "TOP": 168,
         "SIZE_X": 1473,
@@ -131,13 +150,21 @@ A window preset should look like this:
 - `Default_Position` is useful when you have a list of apps that you have set a custom position for,
   but intend to keep all other apps in one specific location.
 
+## Default Shortcuts
+
+| Action   | Shortcut     | Description                                                  |
+|----------|--------------|--------------------------------------------------------------|
+| Center   | `ctrl+alt+d` | Apply the active application's preset or `Default_Position`. |
+| Minimize | `ctrl+alt+m` | Minimize the active window.                                  |
+| Capture  | `ctrl+alt+p` | Save or update the active application's position and size.   |
+
 Your final config should look something like this:
 
 ```json
 {
     "presets": {
         "1920x1080": {
-            "PS7": {
+            "WINDOWSTERMINAL": {
                 "LEFT": 224,
                 "TOP": 168,
                 "SIZE_X": 1473,
@@ -154,9 +181,9 @@ Your final config should look something like this:
     "predefined_keybindings": {
         "enabled": true,
         "bindings": {
-            "refresh": "ctrl+alt+r",
             "center": "ctrl+alt+d",
-            "minimize": "ctrl+alt+m"
+            "minimize": "ctrl+alt+m",
+            "capture": "ctrl+alt+p"
         }
     },
     "logging": false
