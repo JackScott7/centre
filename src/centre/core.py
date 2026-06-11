@@ -2,7 +2,9 @@ import json
 import logging
 import os
 import keyboard
+from .config import Config
 from .utilities import Utilities
+from watchdog.observers import Observer
 
 
 class Centre:
@@ -16,10 +18,11 @@ class Centre:
         if not os.path.isdir(config_dir):
             os.mkdir(config_dir)
 
-        self.__config_file_path = os.path.join(config_dir, "config.json")
+        self.config_file_path = os.path.join(config_dir, "config.json")
+        self.__config: dict = {}
 
-        if not os.path.isfile(self.__config_file_path):
-            with open(self.__config_file_path, 'w') as f:
+        if not os.path.isfile(self.config_file_path):
+            with open(self.config_file_path, 'w') as f:
                 self.__config = {
                     "presets": {
                         f"{Utilities.get_display_resolution()}": {}
@@ -28,29 +31,37 @@ class Centre:
                     "predefined_keybindings": {
                         "enabled": True,
                         "bindings": {
-                            "refresh": "ctrl+alt+r",
                             "center": "ctrl+alt+d",
                             "minimize": "ctrl+alt+m",
+                            "capture": "ctrl+alt+p"
                         }
                     },
                     "logging": False
                 }
                 json.dump(self.__config, f, indent=4)
-                return
-        self.load_config()
+
+        if not self.__config:
+            self.load_config()
+
+        self.__config_observer = Observer()
+        self.__config_observer.schedule(
+            Config(self),
+            path=os.path.dirname(self.config_file_path),
+            recursive=False
+        )
 
         self.__logging = self.__config.get("logging", False)
         if self.__logging:
             logging.basicConfig(level=logging.INFO, filename=Utilities.get_log_file_path())
 
     @property
-    def get_config(self) -> str:
+    def config(self) -> dict:
         """
         Get the loaded config upon initialization
 
         :return: loaded config
         """
-        return json.dumps(self.__config, indent=4)
+        return self.__config
 
     def load_config(self) -> None:
         """
@@ -63,13 +74,13 @@ class Centre:
         :return: None
         """
         try:
-            with open(self.__config_file_path, "r") as f:
+            with open(self.config_file_path, "r") as f:
                 self.__config = json.load(f)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Config file not found at '{self.__config_file_path}'\nPlease run centre again.")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Config file not found at '{self.config_file_path}'\nPlease run centre again.")
         except json.decoder.JSONDecodeError as parse_error:
-            print(f"Syntax error in {self.__config_file_path}\nError: {parse_error.msg} on line {parse_error.lineno}")
-            exit(1)
+            print(f"Syntax error in {self.config_file_path}\nError: {parse_error.msg} on line {parse_error.lineno}")
+            raise SystemExit
 
     def __get_keybindings(self) -> dict:
         bindings = self.__config.get("predefined_keybindings").get("bindings", {})
@@ -83,15 +94,18 @@ class Centre:
             raise ValueError("Please enable the predefined keybindings in config so centre can assign keybindings.")
 
         for k,v in bindings.items():
-            if k == "refresh":
-                keyboard.add_hotkey(v, Utilities.refresh_hotkey, (self,))
-            elif k == "center":
-                args = (self.__config.get("presets"), Utilities.get_display_resolution())
+            if k == "center":
+                args = (self, Utilities.get_display_resolution())
                 keyboard.add_hotkey(v, Utilities.center_hotkey, args)
             elif k == "minimize":
                 keyboard.add_hotkey(v, Utilities.minimize_window_hotkey)
+            elif k == "capture":
+                keyboard.add_hotkey(v, Utilities.capture_hotkey, (self,))
             else:
                 pass
+
+    def __ensure_default_keybindings_exist(self):
+        raise NotImplementedError
 
     def listen(self) -> None:
         """
@@ -104,6 +118,7 @@ class Centre:
         self.__assign_keyboard_bindings(bindings)
         try:
             print("[+] Centre running in background")
+            self.__config_observer.start()
             keyboard.wait()
-        except KeyboardInterrupt or Exception:
-            exit(0)
+        except (KeyboardInterrupt, Exception):
+            raise SystemExit
