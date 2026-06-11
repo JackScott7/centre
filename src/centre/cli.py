@@ -19,7 +19,7 @@ def main() -> None:
         titles = Utilities.list_window_titles()
         print(titles)
     elif args.read_config:
-        print(ctr.get_config)
+        print(ctr.config)
     elif args.start:
         ctr.listen()
 
