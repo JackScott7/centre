@@ -11,14 +11,15 @@ Take control of your windows by choosing where they appear, how they’re arrang
 
 Consistency is `centre`'s goal.
 
+
+## Preview
+https://github.com/user-attachments/assets/d088a951-8c6b-4731-8228-80b063f1a6e5
+
 ## What Centre Tries to Achieve
 
----
 Centre was built for users who want consistent window placement across desktop sessions.
 
 # Install
-
----
 
 ```PowerShell
 pip install centre
@@ -26,7 +27,6 @@ pip install centre
 
 ## Start Centre Automatically
 
----
 To do that, create a Windows Task Scheduler task.
 
 Run the following command as Administrator in PowerShell/cmd to create a Task in Windows Task Scheduler.
@@ -37,7 +37,6 @@ schtasks /Create /TN "centre" /SC ONLOGON /TR "centre -s" /RL LIMITED /F
 # Usage
 
 After your window configuration is ready, start the listener:
----
 
 ```PowerShell
 centre -s
@@ -45,7 +44,6 @@ centre -s
 
 # The CLI
 
----
 You can use the `centre` CLI to inspect open windows and read the active
 configuration.
 
@@ -61,13 +59,11 @@ centre -c
 
 ## Automatic Configuration Reload
 
----
 While Centre is running, it watches `config.json` for changes. Saving the file
 causes Centre to read the configuration again without restarting the process.
 
 # Window Configuration (config.json)
 
----
 Your config will be created at the first startup in:
 
 CMD
@@ -105,7 +101,6 @@ The default config includes these values:
 
 You can change any predefined keyboard shortcut in the `bindings` object.
 
----
 Window presets should be placed inside the "presets" object in `config.json`.
 
 ## Capture a Window
@@ -192,14 +187,10 @@ Your final config should look something like this:
 
 # Caveats
 
----
-
 Some windows may overlap even when they use the same configured position and size.
 
 This is due to some apps having a bigger actual window than the rendered UI.
 
 # License
-
----
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
