@@ -4,6 +4,7 @@ import psutil
 import os
 import pygetwindow as gw
 from pyautogui import size as resolution_size
+from importlib.metadata import version, PackageNotFoundError
 
 
 class Utilities:
@@ -118,3 +119,10 @@ class Utilities:
         current_config["presets"][Utilities.get_display_resolution()][window_name] = preset
         # update the actual config file content
         Utilities.update_config(current_config)
+
+    @staticmethod
+    def get_package_version() -> str:
+        try:
+            return version("centre")
+        except PackageNotFoundError:
+            return "unknown"
