@@ -33,10 +33,12 @@ class Centre:
                         "bindings": {
                             "center": "ctrl+alt+d",
                             "minimize": "ctrl+alt+m",
-                            "capture": "ctrl+alt+p"
+                            "capture": "ctrl+alt+p",
+                            "ignore_preset": "ctrl+alt+i"
                         }
                     },
-                    "logging": False
+                    "logging": False,
+                    "ignored_presets": []
                 }
                 json.dump(self.__config, f, indent=4)
 
@@ -69,7 +71,7 @@ class Centre:
 
         This method is used to refresh/reload the config without restarting the background process.
 
-        Config will be accessible through Centre.get_config
+        Config will be accessible through Centre.config
 
         :return: None
         """
@@ -82,15 +84,18 @@ class Centre:
             print(f"Syntax error in {self.config_file_path}\nError: {parse_error.msg} on line {parse_error.lineno}")
             raise SystemExit
 
-    def __get_keybindings(self) -> dict:
-        bindings = self.__config.get("predefined_keybindings").get("bindings", {})
+    def __get_keybindings(self) -> dict[str, str]:
+        bindings = self.__config.get("predefined_keybindings", {}).get("bindings", {})
+        if not bindings:
+            return {}
+
         return bindings
 
     def __assign_keyboard_bindings(self, bindings: dict) -> None:
         if not bindings:
             raise ValueError("Your config seems to have an issue that's causing centre to exit.")
 
-        if not self.__config.get("predefined_keybindings").get("enabled", False):
+        if not self.__config.get("predefined_keybindings", {}).get("enabled", False):
             raise ValueError("Please enable the predefined keybindings in config so centre can assign keybindings.")
 
         for k,v in bindings.items():
@@ -101,11 +106,10 @@ class Centre:
                 keyboard.add_hotkey(v, Utilities.minimize_window_hotkey)
             elif k == "capture":
                 keyboard.add_hotkey(v, Utilities.capture_hotkey, (self,))
+            elif k == "ignore_preset":
+                keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, (self,))
             else:
                 pass
-
-    def __ensure_default_keybindings_exist(self):
-        raise NotImplementedError
 
     def listen(self) -> None:
         """
