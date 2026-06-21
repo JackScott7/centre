@@ -92,10 +92,12 @@ The default config includes these values:
         "bindings": {
             "center": "ctrl+alt+d",
             "minimize": "ctrl+alt+m",
-            "capture": "ctrl+alt+p"
+            "capture": "ctrl+alt+p",
+            "ignore_preset": "ctrl+alt+i"
         }
     },
-    "logging": false
+    "logging": false,
+    "ignored_presets": []
 }
 ```
 
@@ -118,6 +120,17 @@ Executable names remain stable when an application changes its window title,
 such as when switching tabs in Notepad++.
 
 Capturing the same application again updates its existing preset.
+
+## Ignore a Window Preset
+
+Focus the window you want Centre to ignore and press `ctrl+alt+i`. Centre adds
+the active application's executable name to `ignored_presets`.
+
+Ignored applications are skipped when you press the center shortcut. Centre will
+not apply the application's custom preset or `Default_Position`.
+
+To allow Centre to manage the application again, remove its executable name from
+`ignored_presets` in `config.json`.
 
 A window preset should look like this:
 
@@ -152,6 +165,7 @@ A window preset should look like this:
 | Center   | `ctrl+alt+d` | Apply the active application's preset or `Default_Position`. |
 | Minimize | `ctrl+alt+m` | Minimize the active window.                                  |
 | Capture  | `ctrl+alt+p` | Save or update the active application's position and size.   |
+| Ignore   | `ctrl+alt+i` | Add the active application to `ignored_presets`.             |
 
 Your final config should look something like this:
 
@@ -178,10 +192,14 @@ Your final config should look something like this:
         "bindings": {
             "center": "ctrl+alt+d",
             "minimize": "ctrl+alt+m",
-            "capture": "ctrl+alt+p"
+            "capture": "ctrl+alt+p",
+            "ignore_preset": "ctrl+alt+i"
         }
     },
-    "logging": false
+    "logging": false,
+    "ignored_presets": [
+        "NOTEPAD++"
+    ]
 }
 ```
 
