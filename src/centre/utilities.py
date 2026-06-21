@@ -5,6 +5,7 @@ import os
 import pygetwindow as gw
 from pyautogui import size as resolution_size
 from importlib.metadata import version, PackageNotFoundError
+from pygetwindow import Win32Window
 
 
 class Utilities:
@@ -40,12 +41,16 @@ class Utilities:
             return
 
         window, window_name = Utilities.get_active_window()
-        if not window:
+        if not window or not window_name:
             return
 
         app_poses = presets.get(current_preset)
         if not app_poses:
             return
+
+        ignore_list = centre.config.get("ignored_presets")
+        if ignore_list and window_name in ignore_list:
+                return
 
         if window_name in app_poses.keys():
             window.resizeTo(app_poses[window_name]['SIZE_X'], app_poses[window_name]['SIZE_Y'])
@@ -91,7 +96,7 @@ class Utilities:
     @staticmethod
     def capture_hotkey(centre) -> None:
         window, window_name = Utilities.get_active_window()
-        if not window:
+        if not window or not window_name:
             return
 
         preset = {
@@ -104,7 +109,7 @@ class Utilities:
         Utilities.add_update_preset(window_name, preset, centre)
 
     @staticmethod
-    def get_active_window() -> tuple:
+    def get_active_window() -> tuple[Win32Window | None, str | None]:
         active = gw.getActiveWindow()
         if not active:
             return None, None
@@ -119,6 +124,22 @@ class Utilities:
         current_config["presets"][Utilities.get_display_resolution()][window_name] = preset
         # update the actual config file content
         Utilities.update_config(current_config)
+
+    @staticmethod
+    def ignore_window_hotkey(centre) -> None:
+        window, window_name = Utilities.get_active_window()
+        if not window or not window_name:
+            return
+
+        config: dict = centre.config
+
+        ignored_presets = config.get('ignored_presets')
+        if not isinstance(ignored_presets, list):
+            return
+
+        if window_name not in ignored_presets:
+            ignored_presets.append(window_name)
+            Utilities.update_config(config)
 
     @staticmethod
     def get_package_version() -> str:
