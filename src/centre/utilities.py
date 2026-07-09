@@ -40,7 +40,7 @@ class Utilities:
         if not presets:
             return
 
-        window, window_name = Utilities.get_active_window()
+        window, window_name = Utilities.get_window()
         if not window or not window_name:
             return
 
@@ -50,7 +50,7 @@ class Utilities:
 
         ignore_list = centre.config.get("ignored_presets")
         if ignore_list and window_name in ignore_list:
-                return
+            return
 
         if window_name in app_poses.keys():
             window.resizeTo(app_poses[window_name]['SIZE_X'], app_poses[window_name]['SIZE_Y'])
@@ -95,7 +95,7 @@ class Utilities:
 
     @staticmethod
     def capture_hotkey(centre) -> None:
-        window, window_name = Utilities.get_active_window()
+        window, window_name = Utilities.get_window()
         if not window or not window_name:
             return
 
@@ -109,15 +109,6 @@ class Utilities:
         Utilities.add_update_preset(window_name, preset, centre)
 
     @staticmethod
-    def get_active_window() -> tuple[Win32Window | None, str | None]:
-        active = gw.getActiveWindow()
-        if not active:
-            return None, None
-        _, pid = win32process.GetWindowThreadProcessId(active._hWnd)
-        process_name = os.path.splitext(psutil.Process(pid).name())[0].upper()
-        return active, process_name
-
-    @staticmethod
     def add_update_preset(window_name, preset, centre) -> None:
         current_config = centre.config
         # update the preset with new window
@@ -127,7 +118,7 @@ class Utilities:
 
     @staticmethod
     def ignore_window_hotkey(centre) -> None:
-        window, window_name = Utilities.get_active_window()
+        window, window_name = Utilities.get_window()
         if not window or not window_name:
             return
 
@@ -147,3 +138,47 @@ class Utilities:
             return version("centre")
         except PackageNotFoundError:
             return "unknown"
+
+    @staticmethod
+    def center_all_hotkey(centre, current_preset) -> None:
+        windows = [
+            {"win": window, "name": Utilities.get_window(window)[1]}
+            for window in gw.getAllWindows()
+        ]
+
+        presets: dict | None = centre.config.get("presets", {}).get(current_preset, {})
+        if not presets:
+            return
+
+        all_active = [window for window in windows if window["name"] in presets.keys()]
+
+        if not all_active:
+            return
+
+        for window in all_active:
+            win: Win32Window = window["win"]
+            name: str = window["name"]
+
+            win.resizeTo(presets[name]['SIZE_X'], presets[name]['SIZE_Y'])
+            win.moveTo(presets[name]['LEFT'], presets[name]['TOP'])
+
+    @staticmethod
+    def get_window(window: Win32Window | None = None) -> tuple[Win32Window | None, str | None]:
+        """
+        This will get the window's object and process name.
+
+        Pass a window object to get its process name.
+
+        Passing None as window will return the ActiveWindow's window object and process name
+
+        :param window: Your specific window or None (to get the active window)
+        """
+        if not window:
+            window = gw.getActiveWindow()
+
+        try:
+            _, pid = win32process.GetWindowThreadProcessId(window._hWnd)
+            process_name = os.path.splitext(psutil.Process(pid).name())[0].upper()
+            return window, process_name
+        except (IndexError, Exception):
+            return None, None

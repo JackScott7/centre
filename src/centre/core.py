@@ -34,7 +34,8 @@ class Centre:
                             "center": "ctrl+alt+d",
                             "minimize": "ctrl+alt+m",
                             "capture": "ctrl+alt+p",
-                            "ignore_preset": "ctrl+alt+i"
+                            "ignore_preset": "ctrl+alt+i",
+                            "center_all": "ctrl+alt+a",
                         }
                     },
                     "logging": False,
@@ -98,7 +99,7 @@ class Centre:
         if not self.__config.get("predefined_keybindings", {}).get("enabled", False):
             raise ValueError("Please enable the predefined keybindings in config so centre can assign keybindings.")
 
-        for k,v in bindings.items():
+        for k, v in bindings.items():
             if k == "center":
                 args = (self, Utilities.get_display_resolution())
                 keyboard.add_hotkey(v, Utilities.center_hotkey, args)
@@ -108,6 +109,8 @@ class Centre:
                 keyboard.add_hotkey(v, Utilities.capture_hotkey, (self,))
             elif k == "ignore_preset":
                 keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, (self,))
+            elif k == "center_all":
+                keyboard.add_hotkey(v, Utilities.center_all_hotkey, (self, Utilities.get_display_resolution()))
             else:
                 pass
 
