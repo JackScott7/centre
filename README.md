@@ -55,6 +55,9 @@ centre -l
 
 # Print the loaded configuration
 centre -c
+
+# Print the installed Centre version
+centre -v
 ```
 
 ## Automatic Configuration Reload
@@ -93,7 +96,8 @@ The default config includes these values:
             "center": "ctrl+alt+d",
             "minimize": "ctrl+alt+m",
             "capture": "ctrl+alt+p",
-            "ignore_preset": "ctrl+alt+i"
+            "ignore_preset": "ctrl+alt+i",
+            "center_all": "ctrl+alt+a"
         }
     },
     "logging": false,
@@ -132,6 +136,16 @@ not apply the application's custom preset or `Default_Position`.
 To allow Centre to manage the application again, remove its executable name from
 `ignored_presets` in `config.json`.
 
+## Center All Configured Windows
+
+Press `ctrl+alt+a` to apply presets to all currently open windows that have a
+matching entry under the current display resolution.
+
+Centre skips open windows that do not have a named preset. `Default_Position` is
+only used by the regular center shortcut for the active window.
+
+___
+
 A window preset should look like this:
 
 ```json
@@ -160,12 +174,13 @@ A window preset should look like this:
 
 ## Default Shortcuts
 
-| Action   | Shortcut     | Description                                                  |
-|----------|--------------|--------------------------------------------------------------|
-| Center   | `ctrl+alt+d` | Apply the active application's preset or `Default_Position`. |
-| Minimize | `ctrl+alt+m` | Minimize the active window.                                  |
-| Capture  | `ctrl+alt+p` | Save or update the active application's position and size.   |
-| Ignore   | `ctrl+alt+i` | Add the active application to `ignored_presets`.             |
+| Action     | Shortcut     | Description                                                  |
+|------------|--------------|--------------------------------------------------------------|
+| Center     | `ctrl+alt+d` | Apply the active application's preset or `Default_Position`. |
+| Minimize   | `ctrl+alt+m` | Minimize the active window.                                  |
+| Capture    | `ctrl+alt+p` | Save or update the active application's position and size.   |
+| Ignore     | `ctrl+alt+i` | Add the active application to `ignored_presets`.             |
+| Center All | `ctrl+alt+a` | Apply presets to all matching open windows.                  |
 
 Your final config should look something like this:
 
@@ -193,7 +208,8 @@ Your final config should look something like this:
             "center": "ctrl+alt+d",
             "minimize": "ctrl+alt+m",
             "capture": "ctrl+alt+p",
-            "ignore_preset": "ctrl+alt+i"
+            "ignore_preset": "ctrl+alt+i",
+            "center_all": "ctrl+alt+a"
         }
     },
     "logging": false,
