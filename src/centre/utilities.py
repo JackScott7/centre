@@ -122,8 +122,6 @@ class Utilities:
         config: Config = centre.config
 
         ignored_presets = config.ignored_presets
-        if not ignored_presets:
-            return
 
         if window_name not in ignored_presets:
             ignored_presets.append(window_name)
