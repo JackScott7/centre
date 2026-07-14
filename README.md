@@ -25,6 +25,12 @@ Centre was built for users who want consistent window placement across desktop s
 pip install centre
 ```
 
+# Update
+
+```PowerShell
+pip install -U centre
+```
+
 ## Start Centre Automatically
 
 To do that, create a Windows Task Scheduler task.
@@ -105,7 +111,11 @@ The default config includes these values:
 }
 ```
 
-You can change any predefined keyboard shortcut in the `bindings` object.
+___
+
+Centre validates `bindings` against the predefined shortcut names. When Centre is
+updated, missing predefined shortcuts are added to `config.json` automatically on
+the next load. Unknown shortcut names are not accepted.
 
 Window presets should be placed inside the "presets" object in `config.json`.
 
@@ -221,9 +231,13 @@ Your final config should look something like this:
 
 # Caveats
 
-Some windows may overlap even when they use the same configured position and size.
+~~Some windows may overlap even when they use the same configured position and size.~~
 
-This is due to some apps having a bigger actual window than the rendered UI.
+~~This is due to some apps having a bigger actual window than the rendered UI.~~
+
+Window overlapping is now fixed with the Window-Capture implementation.
+
+since `version 0.2.0` with Window-Capture, it will not be an issue anymore.
 
 # License
 
