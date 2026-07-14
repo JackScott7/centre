@@ -5,6 +5,12 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.7.1] - 2026-07-14
+
+### Fixed
+
+- Fixed `ignore_window_hotkey` so the first ignored window can be added when `ignored_presets` is empty.
+
 ## [0.7.0] - 2026-07-14
 
 ### Added
