@@ -239,6 +239,12 @@ Window overlapping is now fixed with the Window-Capture implementation.
 
 since `version 0.2.0` with Window-Capture, it will not be an issue anymore.
 
+
+# Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
+
 # License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
