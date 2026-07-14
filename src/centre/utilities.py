@@ -6,6 +6,7 @@ import pygetwindow as gw
 from pyautogui import size as resolution_size
 from importlib.metadata import version, PackageNotFoundError
 from pygetwindow import Win32Window
+from .schemas import Config, WindowPreset, ActiveWindow
 
 
 class Utilities:
@@ -35,33 +36,29 @@ class Utilities:
             window.minimize()
 
     @staticmethod
-    def center_hotkey(centre, current_preset) -> None:
-        presets = centre.config.get("presets")
-        if not presets:
-            return
+    def center_hotkey(centre) -> None:
+        config: Config = centre.config
 
         window, window_name = Utilities.get_window()
         if not window or not window_name:
             return
 
-        app_poses = presets.get(current_preset)
-        if not app_poses:
-            return
-
-        ignore_list = centre.config.get("ignored_presets")
+        ignore_list = config.ignored_presets
         if ignore_list and window_name in ignore_list:
             return
 
+        app_poses = config.presets[Utilities.get_display_resolution()]
+
         if window_name in app_poses.keys():
-            window.resizeTo(app_poses[window_name]['SIZE_X'], app_poses[window_name]['SIZE_Y'])
-            window.moveTo(app_poses[window_name]['LEFT'], app_poses[window_name]['TOP'])
+            window.resizeTo(app_poses[window_name].SIZE_X, app_poses[window_name].SIZE_Y)
+            window.moveTo(app_poses[window_name].LEFT, app_poses[window_name].TOP)
             return
 
         if not app_poses.get('Default_Position'):
             return
 
-        window.resizeTo(app_poses['Default_Position']['SIZE_X'], app_poses['Default_Position']['SIZE_Y'])
-        window.moveTo(app_poses['Default_Position']['LEFT'], app_poses['Default_Position']['TOP'])
+        window.resizeTo(app_poses['Default_Position'].SIZE_X, app_poses['Default_Position'].SIZE_Y)
+        window.moveTo(app_poses['Default_Position'].LEFT, app_poses['Default_Position'].TOP)
 
     @staticmethod
     def refresh_hotkey(centre) -> None:
@@ -89,9 +86,9 @@ class Utilities:
         ], indent=4)
 
     @staticmethod
-    def update_config(new_config_json) -> None:
+    def update_config(config: Config) -> None:
         with open(Utilities.get_config_file_path(), 'w') as file:
-            json.dump(new_config_json, file, indent=4)
+            json.dump(config.model_dump(), file, indent=4)
 
     @staticmethod
     def capture_hotkey(centre) -> None:
@@ -99,20 +96,20 @@ class Utilities:
         if not window or not window_name:
             return
 
-        preset = {
-            "LEFT": window.left,
-            "TOP": window.top,
-            "SIZE_X": window.size.width,
-            "SIZE_Y": window.size.height
-        }
+        preset: WindowPreset = WindowPreset(
+            LEFT=window.left,
+            TOP=window.top,
+            SIZE_X=window.size.width,
+            SIZE_Y=window.size.height
+        )
 
         Utilities.add_update_preset(window_name, preset, centre)
 
     @staticmethod
-    def add_update_preset(window_name, preset, centre) -> None:
-        current_config = centre.config
+    def add_update_preset(window_name: str, preset: WindowPreset, centre) -> None:
+        current_config: Config = centre.config
         # update the preset with new window
-        current_config["presets"][Utilities.get_display_resolution()][window_name] = preset
+        current_config.presets.setdefault(Utilities.get_display_resolution(), {})[window_name] = preset
         # update the actual config file content
         Utilities.update_config(current_config)
 
@@ -122,10 +119,10 @@ class Utilities:
         if not window or not window_name:
             return
 
-        config: dict = centre.config
+        config: Config = centre.config
 
-        ignored_presets = config.get('ignored_presets')
-        if not isinstance(ignored_presets, list):
+        ignored_presets = config.ignored_presets
+        if not ignored_presets:
             return
 
         if window_name not in ignored_presets:
@@ -140,13 +137,20 @@ class Utilities:
             return "unknown"
 
     @staticmethod
-    def center_all_hotkey(centre, current_preset) -> None:
-        windows = [
-            {"win": window, "name": Utilities.get_window(window)[1]}
-            for window in gw.getAllWindows()
-        ]
+    def center_all_hotkey(centre) -> None:
+        windows: list[ActiveWindow] = []
 
-        presets: dict | None = centre.config.get("presets", {}).get(current_preset, {})
+        for window in gw.getAllWindows():
+            _, window_name = Utilities.get_window(window)
+            if not window_name:
+                continue
+
+            windows.append({
+                "win": window,
+                "name": window_name,
+            })
+
+        presets = centre.config.presets[Utilities.get_display_resolution()]
         if not presets:
             return
 
@@ -156,11 +160,11 @@ class Utilities:
             return
 
         for window in all_active:
-            win: Win32Window = window["win"]
-            name: str = window["name"]
+            win = window["win"]
+            name = window["name"]
 
-            win.resizeTo(presets[name]['SIZE_X'], presets[name]['SIZE_Y'])
-            win.moveTo(presets[name]['LEFT'], presets[name]['TOP'])
+            win.resizeTo(presets[name].SIZE_X, presets[name].SIZE_Y)
+            win.moveTo(presets[name].LEFT, presets[name].TOP)
 
     @staticmethod
     def get_window(window: Win32Window | None = None) -> tuple[Win32Window | None, str | None]:
