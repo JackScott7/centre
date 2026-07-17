@@ -7,8 +7,38 @@ const observedSections = [...document.querySelectorAll(".observed-section")];
 const progressBar = document.querySelector(".reading-progress span");
 const copyToast = document.querySelector(".copy-toast");
 const themeToggle = document.querySelector(".theme-toggle");
+const versionSpan = document.querySelector(".version-pill");
 
 let toastTimer;
+const PACKAGE_URL = "https://centre-api.syntaxly.xyz/version"
+
+async function getPackageVersion() {
+    try {
+        const response = await fetch(PACKAGE_URL, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            mode: "cors",
+            redirect: "follow",
+        });
+
+        if (!response.ok) {
+            throw new Error(`API returned HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.version) {
+            versionSpan.textContent = `v${data.version}`;
+        }
+    } catch (error) {
+        console.error("Failed to fetch Centre version:", error);
+        versionSpan.textContent = "";
+    }
+}
+
+getPackageVersion();
 
 function setTheme(theme, persist = false) {
     const nextTheme = theme === "light" ? "light" : "dark";
