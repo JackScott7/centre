@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+            name="description"
+            content="Documentation for Centre, a keyboard-driven window position manager for Windows."
+    >
+    <title>Centre Docs — Window layouts without the busywork</title>
+    <script>
+        try {
+            if (localStorage.getItem("centre-theme") === "light") {
+                document.documentElement.dataset.theme = "light";
+            }
+        } catch (error) {
+            // Local storage may be unavailable in privacy-restricted contexts.
+        }
+    </script>
+    <link rel="icon" href="./assets/centre-icon.png">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="reading-progress" aria-hidden="true"><span></span></div>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <button
+                class="menu-button"
+                type="button"
+                aria-label="Open documentation navigation"
+                aria-controls="site-navigation"
+                aria-expanded="false"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <a class="brand" href="#overview" aria-label="Centre documentation home">
+            <img src="./assets/centre-icon.png" alt="" width="34" height="34">
+            <span>centre</span>
+            <small>docs</small>
+        </a>
+
+        <div class="topbar-actions">
+            <button
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Switch to light theme"
+                    title="Switch to light theme"
+            >
+                <span class="theme-icon-light" aria-hidden="true">☀</span>
+                <span class="theme-icon-dark" aria-hidden="true">☾</span>
+            </button>
+            <span class="version-pill">v0.7.1</span>
+            <a
+                    class="github-link"
+                    href="https://github.com/JackScott7/centre"
+                    target="_blank"
+                    rel="noopener noreferrer"
+            >
+                GitHub
+                <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="page-shell">
+    <aside id="site-navigation" class="sidebar" aria-label="Documentation navigation">
+        <nav>
+            <div class="nav-group">
+                <p>Introduction</p>
+                <a class="nav-link is-active" href="#overview">Overview</a>
+                <a class="nav-link" href="#why-centre">Why Centre</a>
+            </div>
+
+            <div class="nav-group">
+                <p>Get started</p>
+                <a class="nav-link" href="#quick-start">Quick start</a>
+                <a class="nav-link" href="#shortcuts">Keyboard shortcuts</a>
+            </div>
+
+            <div class="nav-group">
+                <p>Configuration</p>
+                <a class="nav-link" href="#presets">Preset behavior</a>
+                <a class="nav-link" href="#configuration">Configuration file</a>
+            </div>
+
+            <div class="nav-group">
+                <p>Reference</p>
+                <a class="nav-link" href="#cli">CLI commands</a>
+                <a class="nav-link" href="#automatic-startup">Automatic startup</a>
+                <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
+            </div>
+        </nav>
+
+        <div class="sidebar-card">
+            <span class="status-dot" aria-hidden="true"></span>
+            <div>
+                <strong>Windows only</strong>
+                <span>Python 3.10 or later</span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="nav-scrim" aria-hidden="true"></div>
+
+    <main id="main-content" class="content">
+        <section id="overview" class="hero observed-section">
+            <div class="hero-copy">
+                <div class="hero-label">
+                    <span aria-hidden="true"></span>
+                    Window position management for Windows
+                </div>
+
+                <h1>Your workspace,<br><em>exactly where it belongs.</em></h1>
+
+                <p class="hero-lead">
+                    Capture application positions once, then restore a single window
+                    or your entire workspace with a keyboard shortcut.
+                </p>
+
+                <div class="hero-actions">
+                    <a class="primary-button" href="#quick-start">Get started</a>
+                    <a class="secondary-button" href="#presets">Understand presets</a>
+                </div>
+
+                <ul class="hero-facts" aria-label="Centre requirements and license">
+                    <li><span>✓</span> Windows</li>
+                    <li><span>✓</span> Python 3.10+</li>
+                    <li><span>✓</span> MIT licensed</li>
+                </ul>
+            </div>
+
+            <div class="workspace-demo" aria-label="Example Centre workflow">
+                <div class="demo-toolbar">
+                    <div class="window-controls" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span>workspace.layout</span>
+                    <span class="demo-status">ready</span>
+                </div>
+
+                <div class="demo-canvas">
+                    <div class="demo-window demo-editor">
+                        <span>EDITOR</span>
+                        <div class="code-lines" aria-hidden="true">
+                            <i></i><i></i><i></i><i></i><i></i>
+                        </div>
+                    </div>
+                    <div class="demo-window demo-terminal">
+                        <span>TERMINAL</span>
+                        <code>&gt; centre -s</code>
+                    </div>
+                    <div class="demo-window demo-browser">
+                        <span>BROWSER</span>
+                        <div class="browser-shape" aria-hidden="true"></div>
+                    </div>
+                </div>
+
+                <div class="demo-command">
+                    <span>Restore all configured windows</span>
+                    <kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>A</kbd>
+                </div>
+            </div>
+        </section>
+
+        <section id="why-centre" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">01</span>
+                <div>
+                    <p class="kicker">Why Centre</p>
+                    <h2>Stop rebuilding the same desktop.</h2>
+                    <p>
+                        Applications do not always reopen at useful sizes or positions.
+                        Centre turns a layout you already like into a repeatable workflow.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-bento">
+                <article class="feature-card feature-card-large">
+                    <span class="feature-icon">⌁</span>
+                    <h3>Capture once, restore anytime</h3>
+                    <p>
+                        Save the active application's exact coordinates and dimensions.
+                        Capture it again whenever you want to replace that preset.
+                    </p>
+                    <div class="mini-shortcut"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>P</kbd></div>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-icon">▦</span>
+                    <h3>Full workspace restore</h3>
+                    <p>Move every matching open application with one shortcut.</p>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-icon">↻</span>
+                    <h3>Live configuration</h3>
+                    <p>Saved configuration changes load while the listener is running.</p>
+                </article>
+
+                <article class="feature-card feature-card-wide">
+                    <span class="feature-icon">◎</span>
+                    <div>
+                        <h3>Layouts follow the current display resolution</h3>
+                        <p>
+                            Keep separate preset collections for different resolutions,
+                            with explicit left, top, width, and height values.
+                        </p>
+                    </div>
+                    <span class="resolution-chip">1920 × 1080</span>
+                </article>
+            </div>
+        </section>
+
+        <section id="quick-start" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">02</span>
+                <div>
+                    <p class="kicker">Quick start</p>
+                    <h2>From install to restored layout.</h2>
+                    <p>Three steps are enough to begin using Centre.</p>
+                </div>
+            </div>
+
+            <div class="step-list">
+                <article class="step-card">
+                    <span class="step-index">1</span>
+                    <div class="step-content">
+                        <h3>Install the package</h3>
+                        <p>Centre requires Windows and Python 3.10 or later.</p>
+                    </div>
+                    <div class="command-box">
+                        <code>pip install centre</code>
+                        <button type="button" data-copy="pip install centre" aria-label="Copy install command">Copy
+                        </button>
+                    </div>
+                </article>
+
+                <article class="step-card">
+                    <span class="step-index">2</span>
+                    <div class="step-content">
+                        <h3>Start the listener</h3>
+                        <p>
+                            Keep this process running to enable shortcuts. Centre creates
+                            its configuration file automatically on first start.
+                        </p>
+                    </div>
+                    <div class="command-box">
+                        <code>centre -s</code>
+                        <button type="button" data-copy="centre -s" aria-label="Copy listener command">Copy</button>
+                    </div>
+                </article>
+
+                <article class="step-card">
+                    <span class="step-index">3</span>
+                    <div class="step-content">
+                        <h3>Capture and restore</h3>
+                        <p>
+                            Arrange a window, press <code>Ctrl+Alt+P</code> to capture it,
+                            then press <code>Ctrl+Alt+D</code> whenever it needs restoring.
+                        </p>
+                    </div>
+                    <div class="shortcut-pair">
+                        <span><strong>Capture</strong><code>Ctrl+Alt+P</code></span>
+                        <span><strong>Restore</strong><code>Ctrl+Alt+D</code></span>
+                    </div>
+                </article>
+            </div>
+
+            <aside class="note note-info">
+                <span class="note-mark">i</span>
+                <p>
+                    <strong>Updating Centre?</strong> Run <code>pip install -U centre</code>
+                    to install the latest available release.
+                </p>
+                <button type="button" data-copy="pip install -U centre">Copy update command</button>
+            </aside>
+        </section>
+
+        <section id="shortcuts" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">03</span>
+                <div>
+                    <p class="kicker">Keyboard shortcuts</p>
+                    <h2>Everything stays within reach.</h2>
+                    <p>These defaults can be changed in <code>config.json</code>.</p>
+                </div>
+            </div>
+
+            <div class="shortcut-table" role="table" aria-label="Default keyboard shortcuts">
+                <div class="shortcut-row shortcut-heading" role="row">
+                    <span role="columnheader">Action</span>
+                    <span role="columnheader">What it does</span>
+                    <span role="columnheader">Shortcut</span>
+                </div>
+                <div class="shortcut-row" role="row">
+                    <strong role="cell">Center</strong>
+                    <span role="cell">Apply the named preset or <code>Default_Position</code>.</span>
+                    <span class="keys" role="cell"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>D</kbd></span>
+                </div>
+                <div class="shortcut-row" role="row">
+                    <strong role="cell">Minimize</strong>
+                    <span role="cell">Minimize the active window.</span>
+                    <span class="keys" role="cell"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>M</kbd></span>
+                </div>
+                <div class="shortcut-row" role="row">
+                    <strong role="cell">Capture</strong>
+                    <span role="cell">Save or update the active application's preset.</span>
+                    <span class="keys" role="cell"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>P</kbd></span>
+                </div>
+                <div class="shortcut-row" role="row">
+                    <strong role="cell">Ignore</strong>
+                    <span role="cell">Add the active application to <code>ignored_presets</code>.</span>
+                    <span class="keys" role="cell"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>I</kbd></span>
+                </div>
+                <div class="shortcut-row" role="row">
+                    <strong role="cell">Center all</strong>
+                    <span role="cell">Apply named presets to all matching open windows.</span>
+                    <span class="keys" role="cell"><kbd>Ctrl</kbd><b>+</b><kbd>Alt</kbd><b>+</b><kbd>A</kbd></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="presets" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">04</span>
+                <div>
+                    <p class="kicker">Preset behavior</p>
+                    <h2>Predictable rules, no hidden state.</h2>
+                    <p>Centre identifies applications by executable name and stores plain JSON.</p>
+                </div>
+            </div>
+
+            <div class="rules-layout">
+                <div class="rules-list">
+                    <article>
+                        <span>01</span>
+                        <div>
+                            <h3>Executable-based names</h3>
+                            <p>
+                                Names are uppercase without <code>.exe</code>:
+                                <code>WindowsTerminal.exe</code> becomes <code>WINDOWSTERMINAL</code>.
+                            </p>
+                        </div>
+                    </article>
+                    <article>
+                        <span>02</span>
+                        <div>
+                            <h3>Capture updates existing presets</h3>
+                            <p>
+                                Capturing the same application again replaces its position and
+                                size under the current display resolution.
+                            </p>
+                        </div>
+                    </article>
+                    <article>
+                        <span>03</span>
+                        <div>
+                            <h3>Ignore is not a toggle</h3>
+                            <p>
+                                <code>Ctrl+Alt+I</code> adds the executable to
+                                <code>ignored_presets</code>. Remove it from the JSON file to
+                                manage that application again.
+                            </p>
+                        </div>
+                    </article>
+                    <article>
+                        <span>04</span>
+                        <div>
+                            <h3>Center-all uses named presets only</h3>
+                            <p>
+                                It does not apply <code>Default_Position</code>. A named preset
+                                is still applied even if that executable is in
+                                <code>ignored_presets</code>.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+
+                <aside class="code-card">
+                    <div class="code-card-header">
+                        <span><i></i> config.json</span>
+                        <button type="button" data-copy-target="#config-example">Copy</button>
+                    </div>
+                    <pre id="config-example"><code>{
+  "presets": {
+    "1920x1080": {
+      "WINDOWSTERMINAL": {
+        "LEFT": 0,
+        "TOP": 0,
+        "SIZE_X": 1280,
+        "SIZE_Y": 1080
+      },
+      "Default_Position": {
+        "LEFT": 320,
+        "TOP": 120,
+        "SIZE_X": 1280,
+        "SIZE_Y": 800
+      }
+    }
+  }
+}</code></pre>
+                </aside>
+            </div>
+        </section>
+
+        <section id="configuration" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">05</span>
+                <div>
+                    <p class="kicker">Configuration file</p>
+                    <h2>Readable, editable, and watched live.</h2>
+                    <p>Back up or version the file like any other plain-text configuration.</p>
+                </div>
+            </div>
+
+            <div class="location-card">
+                <div>
+                    <span class="location-icon" aria-hidden="true">⌂</span>
+                    <div>
+                        <small>Configuration location</small>
+                        <code>%USERPROFILE%\.centre\config.json</code>
+                    </div>
+                </div>
+                <button
+                        type="button"
+                        data-copy="%USERPROFILE%\.centre\config.json"
+                        aria-label="Copy configuration path"
+                >
+                    Copy path
+                </button>
+            </div>
+
+            <div class="configuration-grid">
+                <article>
+                    <strong>Per-resolution presets</strong>
+                    <p>Each resolution key owns a separate collection of application positions.</p>
+                </article>
+                <article>
+                    <strong>Automatic validation</strong>
+                    <p>Unknown predefined shortcut names and unexpected fields are rejected.</p>
+                </article>
+                <article>
+                    <strong>Live reload</strong>
+                    <p>Save the file while Centre runs and the listener reloads the configuration.</p>
+                </article>
+            </div>
+
+            <a
+                    class="inline-link"
+                    href="https://github.com/JackScott7/centre#window-configuration-configjson"
+                    target="_blank"
+                    rel="noopener noreferrer"
+            >
+                Read the complete configuration guide <span aria-hidden="true">→</span>
+            </a>
+        </section>
+
+        <section id="cli" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">06</span>
+                <div>
+                    <p class="kicker">CLI reference</p>
+                    <h2>Four commands, one small interface.</h2>
+                    <p>Use the CLI to start Centre or inspect its current state.</p>
+                </div>
+            </div>
+
+            <div class="cli-list">
+                <article>
+                    <code>centre -s</code>
+                    <div><strong>Start</strong><span>Start the listener and enable shortcuts.</span></div>
+                    <button type="button" data-copy="centre -s">Copy</button>
+                </article>
+                <article>
+                    <code>centre -l</code>
+                    <div><strong>List</strong><span>List open windows, sizes, and positions.</span></div>
+                    <button type="button" data-copy="centre -l">Copy</button>
+                </article>
+                <article>
+                    <code>centre -c</code>
+                    <div><strong>Read config</strong><span>Print the loaded configuration.</span></div>
+                    <button type="button" data-copy="centre -c">Copy</button>
+                </article>
+                <article>
+                    <code>centre -v</code>
+                    <div><strong>Version</strong><span>Print the installed Centre version.</span></div>
+                    <button type="button" data-copy="centre -v">Copy</button>
+                </article>
+            </div>
+        </section>
+
+        <section id="automatic-startup" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">07</span>
+                <div>
+                    <p class="kicker">Automatic startup</p>
+                    <h2>Have Centre ready when you log on.</h2>
+                    <p>Create a lightweight Windows Task Scheduler entry with one command.</p>
+                </div>
+            </div>
+
+            <div class="terminal-card">
+                <div class="terminal-bar">
+                    <span>Administrator: PowerShell or Command Prompt</span>
+                    <button
+                            type="button"
+                            data-copy="schtasks /Create /TN &quot;centre&quot; /SC ONLOGON /TR &quot;centre -s&quot; /RL LIMITED /F"
+                    >
+                        Copy command
+                    </button>
+                </div>
+                <code><span>PS&gt;</span> schtasks /Create /TN "centre" /SC ONLOGON /TR "centre -s" /RL LIMITED
+                    /F</code>
+            </div>
+
+            <aside class="note note-warning">
+                <span class="note-mark">!</span>
+                <p>
+                    This task starts Centre when you log on. It does not add a
+                    session-unlock trigger.
+                </p>
+            </aside>
+        </section>
+
+        <section id="troubleshooting" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">08</span>
+                <div>
+                    <p class="kicker">Troubleshooting</p>
+                    <h2>When Windows cannot find <code>centre</code>.</h2>
+                    <p>A quick PATH check resolves the most common post-install problem.</p>
+                </div>
+            </div>
+
+            <div class="troubleshooting-card">
+                <ol>
+                    <li>Close and reopen your terminal after installation.</li>
+                    <li>Run <code>where centre</code> to check whether the executable is available.</li>
+                    <li>
+                        If it is still missing, ensure the Python <code>Scripts</code>
+                        directory used by <code>pip</code> is included in your <code>PATH</code>.
+                    </li>
+                    <li>Confirm the installation with <code>py -m pip show centre</code>.</li>
+                </ol>
+            </div>
+
+            <div class="resource-grid">
+                <a href="https://github.com/JackScott7/centre/blob/main/CHANGELOG.md" target="_blank"
+                   rel="noopener noreferrer">
+                    <span>Release history</span>
+                    <strong>View the changelog</strong>
+                    <i aria-hidden="true">↗</i>
+                </a>
+                <a href="https://github.com/JackScott7/centre/issues" target="_blank" rel="noopener noreferrer">
+                    <span>Need more help?</span>
+                    <strong>Report an issue</strong>
+                    <i aria-hidden="true">↗</i>
+                </a>
+                <a href="https://pypi.org/project/centre/" target="_blank" rel="noopener noreferrer">
+                    <span>Package details</span>
+                    <strong>Open Centre on PyPI</strong>
+                    <i aria-hidden="true">↗</i>
+                </a>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-brand">
+                <img src="./assets/centre-icon.png" alt="" width="30" height="30">
+                <div><strong>centre</strong><span>Your Window Position Manager</span></div>
+            </div>
+            <p>Open-source software released under the MIT License.</p>
+        </footer>
+    </main>
+</div>
+
+<div class="copy-toast" role="status" aria-live="polite">Copied to clipboard</div>
+<script src="./script.js"></script>
+</body>
+</html>

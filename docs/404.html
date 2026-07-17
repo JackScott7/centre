@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="The requested Centre documentation page could not be found.">
+    <title>Page not found — Centre Docs</title>
+    <script>
+        try {
+            if (localStorage.getItem("centre-theme") === "light") {
+                document.documentElement.dataset.theme = "light";
+            }
+        } catch (error) {
+            // Local storage may be unavailable in privacy-restricted contexts.
+        }
+    </script>
+    <link rel="icon" href="/centre/assets/centre-icon.png">
+    <link rel="stylesheet" href="/centre/styles.css">
+</head>
+
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="/centre/" aria-label="Centre documentation home">
+            <img src="/centre/assets/centre-icon.png" alt="" width="34" height="34">
+            <span>centre</span>
+            <small>docs</small>
+        </a>
+
+        <div class="topbar-actions">
+            <button
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Switch to light theme"
+                    title="Switch to light theme"
+            >
+                <span class="theme-icon-light" aria-hidden="true">☀</span>
+                <span class="theme-icon-dark" aria-hidden="true">☾</span>
+            </button>
+            <span class="version-pill">v0.7.1</span>
+            <a
+                    class="github-link"
+                    href="https://github.com/JackScott7/centre"
+                    target="_blank"
+                    rel="noopener noreferrer"
+            >
+                GitHub
+                <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<main id="main-content" class="error-page">
+    <div class="error-panel">
+        <div class="error-copy">
+            <p class="error-kicker">Error 404</p>
+            <h1>This window is <em>off-screen.</em></h1>
+            <p class="error-description">
+                The page you followed does not exist, may have moved, or the address may be incomplete.
+                Return to the docs and Centre will put you back in the right place.
+            </p>
+
+            <div class="error-actions">
+                <a class="primary-button" href="/centre/">Back to documentation</a>
+                <a
+                        class="secondary-button"
+                        href="https://github.com/JackScott7/centre/issues"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                >
+                    Report a broken link <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+
+            <p class="error-hint">
+                <span>Tip:</span> check the address after <code>/centre/</code>
+            </p>
+        </div>
+
+        <div class="error-window" aria-hidden="true">
+            <div class="error-window-bar">
+                <span class="error-window-dots"><i></i><i></i><i></i></span>
+                <span>page.location</span>
+                <span>not found</span>
+            </div>
+            <div class="error-code"><strong>404</strong></div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer error-footer">
+    <div class="footer-brand">
+        <img src="/centre/assets/centre-icon.png" alt="" width="30" height="30">
+        <div><strong>centre</strong><span>Your Window Position Manager</span></div>
+    </div>
+    <p>Open-source software released under the MIT License.</p>
+</footer>
+
+<script>
+    const themeToggle = document.querySelector(".theme-toggle");
+
+    function setTheme(theme, persist = false) {
+        const nextTheme = theme === "light" ? "light" : "dark";
+        document.documentElement.dataset.theme = nextTheme;
+
+        const nextLabel = nextTheme === "dark"
+            ? "Switch to light theme"
+            : "Switch to dark theme";
+
+        themeToggle.setAttribute("aria-label", nextLabel);
+        themeToggle.setAttribute("title", nextLabel);
+
+        if (persist) {
+            try {
+                localStorage.setItem("centre-theme", nextTheme);
+            } catch (error) {
+                // The selected theme still applies for the current page session.
+            }
+        }
+    }
+
+    setTheme(document.documentElement.dataset.theme);
+
+    themeToggle.addEventListener("click", () => {
+        const currentTheme = document.documentElement.dataset.theme;
+        setTheme(currentTheme === "dark" ? "light" : "dark", true);
+    });
+</script>
+</body>
+</html>
