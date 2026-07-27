@@ -111,6 +111,37 @@ The default config includes these values:
 }
 ```
 
+## Logging
+
+File logging is disabled by default. To enable it, set `logging` to `true` in
+`config.json`:
+
+```json
+{
+  "logging": true
+}
+```
+
+When logging is enabled, Centre creates or appends to:
+
+```text
+%USERPROFILE%\.centre\centre.log
+```
+
+While Centre is running, saving a valid configuration change applies the new
+logging setting without requiring a restart. Changing `logging` to `false`
+closes the file handler and stops new log entries from being written.
+
+Log entries include a timestamp, severity level, and message:
+
+```text
+[2026-07-27 12:34:56,789] INFO - Centering NOTEPAD
+```
+
+Centre logs window-management activity and errors. Entries may contain
+normalized executable names and captured preset details. The log file is
+append-only and is not automatically rotated or deleted.
+
 ___
 
 Centre validates `bindings` against the predefined shortcut names. When Centre is
