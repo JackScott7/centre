@@ -5,6 +5,29 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.8.2] - 2026-07-27
+
+### Added
+
+- Added configurable file logging through the `logging` configuration option.
+- Added operational and error logging for window-management actions.
+- Added an event-based graceful shutdown mechanism.
+
+### Changed
+
+- Applied logging configuration during startup and live configuration reloads.
+- Changed invalid configuration reloads to request an orderly shutdown.
+- Centralized configuration and log-file path resolution.
+- Updated the package version to `0.8.2`.
+
+### Fixed
+
+- Fixed logging handlers not being closed when file logging is disabled.
+- Prevented duplicate logging handlers after configuration reloads.
+- Improved cleanup of keyboard hooks and the filesystem observer during shutdown.
+- Improved handling of unavailable windows and inaccessible processes.
+
+
 ## [0.7.1] - 2026-07-14
 
 ### Fixed
