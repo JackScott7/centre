@@ -2,11 +2,15 @@ import json
 import logging
 import os
 import keyboard
+from threading import Event
 from watchdog.observers import Observer
 from pydantic import ValidationError
 from .configwatcher import ConfigWatcher
 from .utilities import Utilities
 from .schemas import Config
+
+
+log = logging.getLogger("centre")
 
 
 class Centre:
@@ -17,10 +21,14 @@ class Centre:
     """
 
     def __init__(self):
-        config_dir = os.path.join(os.path.expanduser("~"), ".centre")
-        os.makedirs(config_dir, exist_ok=True)
+        self.__exit_reason: str | None = None
+        self.__shutdown_event: Event = Event()
 
-        self.config_file_path = os.path.join(config_dir, "config.json")
+        self.log_file_path = Utilities.get_log_file_path()
+        self.config_file_path = Utilities.get_config_file_path()
+
+        config_dir = os.path.dirname(self.config_file_path)
+        os.makedirs(config_dir, exist_ok=True)
 
         if os.path.isfile(self.config_file_path):
             self.load_config()
@@ -33,6 +41,8 @@ class Centre:
                 )
                 json.dump(self.__config.model_dump(), f, indent=4)
 
+                self.__configure_logging()
+
         self.__config_observer = Observer()
         self.__config_observer.schedule(
             ConfigWatcher(self),
@@ -40,9 +50,34 @@ class Centre:
             recursive=False
         )
 
-        self.__logging = self.__config.logging
-        if self.__logging:
-            logging.basicConfig(level=logging.INFO, filename=Utilities.get_log_file_path())
+    def request_shutdown(self, reason: str) -> None:
+        self.__exit_reason = reason
+        self.__shutdown_event.set()
+
+    def __configure_logging(self) -> None:
+        logger = logging.getLogger("centre")
+        logger.setLevel(logging.INFO)
+        logger.propagate = False
+
+        # Remove the previous handlers
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            handler.close()
+
+        if not self.__config.logging:
+            return
+
+        handler = logging.FileHandler(
+            self.log_file_path,
+            encoding="utf-8",
+        )
+        handler.setFormatter(
+            logging.Formatter(
+                "[%(asctime)s] %(levelname)s - %(message)s"
+            )
+        )
+        logger.addHandler(handler)
+
 
     @property
     def config(self) -> Config:
@@ -59,7 +94,7 @@ class Centre:
 
         This method is used to refresh/reload the config without restarting the background process.
 
-        ConfigWatcher will be accessible through Centre.config
+        Config will be accessible through Centre.config
 
         :return: None
         """
@@ -73,15 +108,24 @@ class Centre:
             if migrated_config != raw_config:
                 Utilities.update_config(self.__config)
 
+            self.__configure_logging()
+
         except FileNotFoundError:
-            raise FileNotFoundError(
-                f"ConfigWatcher file not found at '{self.config_file_path}'\nPlease run centre again.")
+            message = f"Config file not found at '{self.config_file_path}'\nPlease run centre again."
+
+            log.error(message)
+            raise SystemExit(message)
         except json.decoder.JSONDecodeError as parse_error:
-            print(f"Syntax error in {self.config_file_path}\nError: {parse_error.msg} on line {parse_error.lineno}")
-            raise SystemExit
+            message = (
+                f"Syntax error in {self.config_file_path}\n"
+                f"Error: {parse_error.msg}, "
+                f"line {parse_error.lineno}, column {parse_error.colno}"
+            )
+            log.error(message)
+            raise SystemExit(message)
         except ValidationError as ve:
-            print(ve.args)
-            raise SystemExit
+            log.error(ve.args)
+            raise SystemExit(ve)
 
     def __get_keybindings(self) -> dict[str, str]:
         bindings = self.config.predefined_keybindings.bindings
@@ -89,19 +133,21 @@ class Centre:
 
     def __assign_keyboard_bindings(self, bindings: dict) -> None:
         if not bindings:
-            raise ValueError(
+            log.error(
                 "Your config seems to have an issue that's causing centre to exit.\n"
                 "You can fix the issue by checking any syntax or invalid characters in config.json, or"
                 " Simply removing the config file and starting Centre again will fix the issue."
                 " However you presets will not be saved"
             )
+            raise SystemExit
 
         if not self.__config.predefined_keybindings.enabled:
-            raise ValueError(
+            log.error(
                 "Please enable the predefined keybindings in config so centre can assign keybindings.\n"
                 "Fix the following key in config.json like this:\n"
                 '"enabled": true'
             )
+            raise SystemExit
 
         hotkey_args = (self,)
         for k, v in bindings.items():
@@ -133,11 +179,17 @@ class Centre:
             self.__config_observer.start()
             print("[+] Centre running in background")
 
-            keyboard.wait()
+            while not self.__shutdown_event.wait(0.25):
+                pass
+
+            if self.__exit_reason:
+                raise SystemExit(self.__exit_reason)
         except KeyboardInterrupt:
-            raise SystemExit
+            raise SystemExit("KeyboardInterrupt")
+
         finally:
             keyboard.unhook_all()
+
             if self.__config_observer.is_alive():
                 self.__config_observer.stop()
                 self.__config_observer.join()
