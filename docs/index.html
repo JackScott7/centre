@@ -378,9 +378,9 @@
                         <div>
                             <h3>Center-all uses named presets only</h3>
                             <p>
-                                It does not apply <code>Default_Position</code>. A named preset
-                                is still applied even if that executable is in
-                                <code>ignored_presets</code>.
+                                It does not apply <code>Default_Position</code> and skips any
+                                executable in <code>ignored_presets</code>, even when a named
+                                preset exists.
                             </p>
                         </div>
                     </article>
@@ -655,8 +655,8 @@
                     <p>Start, list, read-config, and version flags can no longer be combined accidentally.</p>
                 </article>
                 <article>
-                    <strong>First ignored preset fix</strong>
-                    <p>The ignore shortcut now works when <code>ignored_presets</code> starts empty.</p>
+                    <strong>Consistent ignored presets</strong>
+                    <p>Center-all now skips executables listed in <code>ignored_presets</code>.</p>
                 </article>
             </div>
 
