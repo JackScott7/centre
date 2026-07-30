@@ -5,6 +5,19 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.8.3] - 2026-07-30
+
+### Changed
+
+- Made `--start` mutually exclusive with the other CLI action flags.
+- Added a clear message when a Centre listener is already running.
+- Updated the package version to `0.8.3`.
+
+### Fixed
+
+- Prevented multiple `centre --start` listeners from running in the same Windows login session by using a named mutex.
+- Ensured duplicate startup is detected before Centre initializes its configuration, logging, and filesystem observer.
+
 ## [0.8.2] - 2026-07-27
 
 ### Added
