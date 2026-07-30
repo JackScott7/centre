@@ -19,6 +19,11 @@ https://github.com/user-attachments/assets/d088a951-8c6b-4731-8228-80b063f1a6e5
 
 Centre was built for users who want consistent window placement across desktop sessions.
 
+## Requirements
+
+- Windows
+- Python 3.10 or newer
+
 # Install
 
 ```PowerShell
@@ -48,28 +53,46 @@ After your window configuration is ready, start the listener:
 centre -s
 ```
 
+## Single-Instance Listener
+
+Centre allows one `centre --start` listener per Windows login session. If a
+listener is already running, another start attempt prints
+`Centre already running` and exits.
+
+The other CLI commands remain available while the listener is running.
+
+## Stopping Centre
+
+When Centre is running interactively in a terminal, press `Ctrl+C` to stop it.
+Centre will remove its keyboard hooks and stop its configuration observer
+before exiting.
+
 # The CLI
 
-You can use the `centre` CLI to inspect open windows and read the active
-configuration.
+The action flags are mutually exclusive, so use one action per invocation.
 
-Examples:
-
-```PowerShell
-# List active windows, including their titles, sizes, and positions
-centre -l
-
-# Print the loaded configuration
-centre -c
-
-# Print the installed Centre version
-centre -v
-```
+| Command                      | Description                                                 |
+|------------------------------|-------------------------------------------------------------|
+| `centre -s`, `--start`       | Start the listener.                                         |
+| `centre -l`, `--list`        | Print window titles, sizes, and positions as formatted JSON. |
+| `centre -c`, `--read-config` | Print the loaded and validated configuration.               |
+| `centre -v`, `--version`     | Print the installed Centre version.                         |
+| `centre -h`, `--help`        | Show the available CLI options.                             |
 
 ## Automatic Configuration Reload
 
-While Centre is running, it watches `config.json` for changes. Saving the file
-causes Centre to read the configuration again without restarting the process.
+While Centre is running, it watches `config.json` for changes. Saving a valid
+change reloads presets, ignored applications, and logging settings without
+restarting the process.
+
+Keyboard shortcuts are registered when the listener starts. Changing a shortcut
+in `bindings` requires you to stop and restart Centre before the new shortcut is
+used.
+
+If `config.json` is invalid at startup, Centre reports the problem and exits
+without starting the listener. If a saved configuration becomes invalid while
+Centre is running, Centre performs an orderly shutdown. Correct `config.json`,
+then run `centre --start` again.
 
 # Window Configuration (config.json)
 
@@ -111,6 +134,19 @@ The default config includes these values:
 }
 ```
 
+## Configuration Validation and Migration
+
+Centre validates the complete configuration, including window presets and
+predefined keyboard shortcuts. Unknown configuration fields, shortcut names,
+and preset properties are rejected.
+
+When a valid configuration is missing fields that have defaults, Centre adds
+those defaults and writes the migrated configuration back to `config.json`.
+
+The listener requires `predefined_keybindings.enabled` to be `true`. If it is
+`false`, `centre --start` exits instead of continuing without keyboard
+shortcuts.
+
 ## Logging
 
 File logging is disabled by default. To enable it, set `logging` to `true` in
@@ -143,10 +179,6 @@ normalized executable names and captured preset details. The log file is
 append-only and is not automatically rotated or deleted.
 
 ___
-
-Centre validates `bindings` against the predefined shortcut names. When Centre is
-updated, missing predefined shortcuts are added to `config.json` automatically on
-the next load. Unknown shortcut names are not accepted.
 
 Window presets should be placed inside the "presets" object in `config.json`.
 
@@ -259,17 +291,6 @@ Your final config should look something like this:
     ]
 }
 ```
-
-# Caveats
-
-~~Some windows may overlap even when they use the same configured position and size.~~
-
-~~This is due to some apps having a bigger actual window than the rendered UI.~~
-
-Window overlapping is now fixed with the Window-Capture implementation.
-
-since `version 0.2.0` with Window-Capture, it will not be an issue anymore.
-
 
 # Changelog
 
