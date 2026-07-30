@@ -214,9 +214,9 @@ To allow Centre to manage the application again, remove its executable name from
 Press `ctrl+alt+a` to apply presets to all currently open windows that have a
 matching entry under the current display resolution.
 
-Centre skips open windows that do not have a named preset. `Default_Position` is
-only used by the regular center shortcut for the active window.
-
+Centre skips open windows that do not have a named preset or whose executable
+appears in `ignored_presets`. `Default_Position` is only used by the regular
+center shortcut for the active window.
 ___
 
 A window preset should look like this:
