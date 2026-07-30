@@ -34,7 +34,6 @@ async function getPackageVersion() {
         }
     } catch (error) {
         console.error("Failed to fetch Centre version:", error);
-        versionSpan.textContent = "";
     }
 }
 

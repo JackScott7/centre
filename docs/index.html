@@ -55,7 +55,7 @@
                 <span class="theme-icon-light" aria-hidden="true">☀</span>
                 <span class="theme-icon-dark" aria-hidden="true">☾</span>
             </button>
-            <span class="version-pill">v0.7.1</span>
+            <span class="version-pill">v0.8.3</span>
             <a
                     class="github-link"
                     href="https://github.com/JackScott7/centre"
@@ -94,6 +94,7 @@
                 <p>Reference</p>
                 <a class="nav-link" href="#cli">CLI commands</a>
                 <a class="nav-link" href="#automatic-startup">Automatic startup</a>
+                <a class="nav-link" href="#reliability">Reliability and diagnostics</a>
                 <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
             </div>
         </nav>
@@ -202,7 +203,7 @@
                 <article class="feature-card">
                     <span class="feature-icon">↻</span>
                     <h3>Live configuration</h3>
-                    <p>Saved configuration changes load while the listener is running.</p>
+                    <p>Valid presets, ignored applications, and logging changes load while the listener is running.</p>
                 </article>
 
                 <article class="feature-card feature-card-wide">
@@ -249,7 +250,8 @@
                         <h3>Start the listener</h3>
                         <p>
                             Keep this process running to enable shortcuts. Centre creates
-                            its configuration file automatically on first start.
+                            its configuration file automatically on first start. Only one
+                            listener can run in the current Windows login session.
                         </p>
                     </div>
                     <div class="command-box">
@@ -405,7 +407,19 @@
         "SIZE_Y": 800
       }
     }
-  }
+  },
+  "predefined_keybindings": {
+    "enabled": true,
+    "bindings": {
+      "center": "ctrl+alt+d",
+      "minimize": "ctrl+alt+m",
+      "capture": "ctrl+alt+p",
+      "ignore_preset": "ctrl+alt+i",
+      "center_all": "ctrl+alt+a"
+    }
+  },
+  "logging": false,
+  "ignored_presets": []
 }</code></pre>
                 </aside>
             </div>
@@ -449,9 +463,62 @@
                 </article>
                 <article>
                     <strong>Live reload</strong>
-                    <p>Save the file while Centre runs and the listener reloads the configuration.</p>
+                    <p>Valid preset, ignore-list, and logging changes apply while Centre runs.</p>
+                </article>
+                <article>
+                    <strong>Default migration</strong>
+                    <p>Missing fields with defaults are added and written back to the file.</p>
+                </article>
+                <article>
+                    <strong>Configurable logging</strong>
+                    <p>Set <code>logging</code> to <code>true</code> to write activity and errors to <code>centre.log</code>.</p>
+                </article>
+                <article>
+                    <strong>Invalid config is fatal</strong>
+                    <p>An invalid startup or live configuration stops Centre instead of continuing with uncertain settings.</p>
                 </article>
             </div>
+
+            <aside class="note note-info">
+                <span class="note-mark">i</span>
+                <p>
+                    <strong>Shortcut changes require a restart.</strong> Centre reloads the
+                    configuration file live, but keyboard hooks are registered when the
+                    listener starts. Stop and restart <code>centre -s</code> after editing a shortcut.
+                </p>
+            </aside>
+
+            <aside class="note note-warning">
+                <span class="note-mark">!</span>
+                <p>
+                    If a saved configuration is invalid, Centre performs an orderly shutdown.
+                    Correct <code>config.json</code>, then run <code>centre -s</code> again.
+                </p>
+            </aside>
+
+            <div class="location-card">
+                <div>
+                    <span class="location-icon" aria-hidden="true">≡</span>
+                    <div>
+                        <small>Optional log file</small>
+                        <code>%USERPROFILE%\.centre\centre.log</code>
+                    </div>
+                </div>
+                <button
+                        type="button"
+                        data-copy="%USERPROFILE%\.centre\centre.log"
+                        aria-label="Copy log file path"
+                >
+                    Copy path
+                </button>
+            </div>
+
+            <p>
+                File logging is disabled by default. When enabled, Centre appends timestamped
+                activity and error entries to <code>centre.log</code>. Changing
+                <code>logging</code> back to <code>false</code> closes the file handler.
+                The file is not automatically rotated or deleted.
+            </p>
 
             <a
                     class="inline-link"
@@ -468,8 +535,11 @@
                 <span class="section-number">06</span>
                 <div>
                     <p class="kicker">CLI reference</p>
-                    <h2>Four commands, one small interface.</h2>
-                    <p>Use the CLI to start Centre or inspect its current state.</p>
+                    <h2>One action at a time.</h2>
+                    <p>
+                        Start Centre or inspect its current state. Action flags are mutually
+                        exclusive, so each invocation accepts only one action.
+                    </p>
                 </div>
             </div>
 
@@ -494,7 +564,30 @@
                     <div><strong>Version</strong><span>Print the installed Centre version.</span></div>
                     <button type="button" data-copy="centre -v">Copy</button>
                 </article>
+                <article>
+                    <code>centre -h</code>
+                    <div><strong>Help</strong><span>Show all available command-line options.</span></div>
+                    <button type="button" data-copy="centre -h">Copy</button>
+                </article>
             </div>
+
+            <aside class="note note-info">
+                <span class="note-mark">i</span>
+                <p>
+                    <strong>The listener is single-instance.</strong> Starting a second
+                    <code>centre -s</code> in the same Windows login session prints
+                    <code>Centre already running</code> and exits before loading configuration.
+                    The list, config, version, and help commands remain available.
+                </p>
+            </aside>
+
+            <aside class="note note-warning">
+                <span class="note-mark">!</span>
+                <p>
+                    To stop an interactive listener, press <code>Ctrl+C</code>. Centre removes
+                    its keyboard hooks and stops its configuration observer before exiting.
+                </p>
+            </aside>
         </section>
 
         <section id="automatic-startup" class="doc-section observed-section">
@@ -530,9 +623,56 @@
             </aside>
         </section>
 
-        <section id="troubleshooting" class="doc-section observed-section">
+        <section id="reliability" class="doc-section observed-section">
             <div class="section-intro">
                 <span class="section-number">08</span>
+                <div>
+                    <p class="kicker">Latest changes</p>
+                    <h2>Safer startup, shutdown, and diagnostics.</h2>
+                    <p>Centre 0.8.2 and 0.8.3 focused on making the listener easier to operate and troubleshoot.</p>
+                </div>
+            </div>
+
+            <div class="configuration-grid">
+                <article>
+                    <strong>Single listener</strong>
+                    <p>A named Windows mutex prevents duplicate <code>centre -s</code> processes in one login session.</p>
+                </article>
+                <article>
+                    <strong>Earlier duplicate detection</strong>
+                    <p>A duplicate start exits before configuration, logging, or the file observer are initialized.</p>
+                </article>
+                <article>
+                    <strong>Graceful shutdown</strong>
+                    <p>Keyboard hooks and the configuration observer are cleaned up on terminal or config-triggered shutdown.</p>
+                </article>
+                <article>
+                    <strong>Live logging control</strong>
+                    <p>Turn file logging on or off through <code>config.json</code> without restarting a valid listener.</p>
+                </article>
+                <article>
+                    <strong>Stricter CLI use</strong>
+                    <p>Start, list, read-config, and version flags can no longer be combined accidentally.</p>
+                </article>
+                <article>
+                    <strong>First ignored preset fix</strong>
+                    <p>The ignore shortcut now works when <code>ignored_presets</code> starts empty.</p>
+                </article>
+            </div>
+
+            <a
+                    class="inline-link"
+                    href="https://github.com/JackScott7/centre/blob/main/CHANGELOG.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+            >
+                Read every release note in the changelog <span aria-hidden="true">→</span>
+            </a>
+        </section>
+
+        <section id="troubleshooting" class="doc-section observed-section">
+            <div class="section-intro">
+                <span class="section-number">09</span>
                 <div>
                     <p class="kicker">Troubleshooting</p>
                     <h2>When Windows cannot find <code>centre</code>.</h2>
@@ -551,6 +691,16 @@
                     <li>Confirm the installation with <code>py -m pip show centre</code>.</li>
                 </ol>
             </div>
+
+            <aside class="note note-info">
+                <span class="note-mark">i</span>
+                <p>
+                    <strong>Listener stopped after a save?</strong> Check the terminal for
+                    JSON or validation details. If logging was already enabled, also inspect
+                    <code>%USERPROFILE%\.centre\centre.log</code>. Fix the configuration,
+                    then start Centre again.
+                </p>
+            </aside>
 
             <div class="resource-grid">
                 <a href="https://github.com/JackScott7/centre/blob/main/CHANGELOG.md" target="_blank"
