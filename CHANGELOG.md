@@ -5,6 +5,11 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.8.4] - 2026-07-30
+
+### Fixed
+- Ensured `center_all_hotkey` skips executables listed in `ignored_presets`.
+
 ## [0.8.3] - 2026-07-30
 
 ### Changed

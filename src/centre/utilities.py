@@ -168,16 +168,20 @@ class Utilities:
 
         presets = centre.config.presets[Utilities.get_display_resolution()]
 
-        window_names = [x["name"] for x in windows]
-
         if not presets:
-            log.info(f"No presets found, windows:\n%s", window_names)
+            log.info(f"No presets found")
             return
 
-        all_active = [window for window in windows if window["name"] in presets.keys()]
+        # filter all the active windows that are open by EXECUTABLE names in presets
+        #  and ignore the ones that are in ignored_presets
+        all_active = [
+            window for window in windows
+            if window["name"] in presets.keys() and window["name"] not in
+            centre.config.ignored_presets
+        ]
 
         if not all_active:
-            log.info(f"No matching presets found, windows:\n%s", window_names)
+            log.info(f"No matching presets found")
             return
 
         for window in all_active:
