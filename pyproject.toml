@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "centre"
-version = "0.8.4"
+version = "0.9.0"
 description = "Your Window Position Manager"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -40,3 +40,6 @@ centre = "centre.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+centre = ["sounds/*.wav"]

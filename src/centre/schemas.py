@@ -34,6 +34,14 @@ class KeyBinding(BaseModel):
     bindings: Bindings = Field(default_factory=Bindings)
 
 
+class SoundActions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    center: bool = False
+    capture: bool = False
+    ignore: bool = False
+
+
 class Config(BaseModel):
     """
     Base Centre configuration Model
@@ -44,3 +52,4 @@ class Config(BaseModel):
     predefined_keybindings: KeyBinding = Field(default_factory=KeyBinding)
     logging: bool = False
     ignored_presets: list[str] = Field(default_factory=list)
+    play_sound: SoundActions = Field(default_factory=SoundActions)

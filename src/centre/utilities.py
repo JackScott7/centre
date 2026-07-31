@@ -4,6 +4,8 @@ import psutil
 import os
 import pygetwindow as gw
 import logging
+import winsound
+from pathlib import Path
 from pyautogui import size as resolution_size
 from importlib.metadata import version, PackageNotFoundError
 from pygetwindow import Win32Window
@@ -63,6 +65,10 @@ class Utilities:
             log.info(f"Centering %s", window_name)
             window.resizeTo(app_poses[window_name].SIZE_X, app_poses[window_name].SIZE_Y)
             window.moveTo(app_poses[window_name].LEFT, app_poses[window_name].TOP)
+
+            if centre.config.play_sound.center:
+                Utilities.play_sound("center")
+
             return
 
         if not app_poses.get('Default_Position'):
@@ -72,6 +78,9 @@ class Utilities:
         log.info(f"Centering %s to Default_Position", window_name)
         window.resizeTo(app_poses['Default_Position'].SIZE_X, app_poses['Default_Position'].SIZE_Y)
         window.moveTo(app_poses['Default_Position'].LEFT, app_poses['Default_Position'].TOP)
+
+        if centre.config.play_sound.center:
+            Utilities.play_sound("center")
 
     @staticmethod
     def refresh_hotkey(centre) -> None:
@@ -121,6 +130,9 @@ class Utilities:
 
         Utilities.add_update_preset(window_name, preset, centre)
 
+        if centre.config.play_sound.capture:
+            Utilities.play_sound("capture")
+
     @staticmethod
     def add_update_preset(window_name: str, preset: WindowPreset, centre) -> None:
         current_config: Config = centre.config
@@ -144,6 +156,9 @@ class Utilities:
             ignored_presets.append(window_name)
             log.info(f"Ignoring %s", window_name)
             Utilities.update_config(config)
+
+            if centre.config.play_sound.ignore:
+                Utilities.play_sound("ignore")
 
     @staticmethod
     def get_package_version() -> str:
@@ -191,6 +206,9 @@ class Utilities:
             win.resizeTo(presets[name].SIZE_X, presets[name].SIZE_Y)
             win.moveTo(presets[name].LEFT, presets[name].TOP)
 
+        if centre.config.play_sound.center:
+            Utilities.play_sound("center")
+
     @staticmethod
     def get_window(window: Win32Window | None = None) -> tuple[Win32Window | None, str | None]:
         """
@@ -220,3 +238,20 @@ class Utilities:
             return None, None
         except Exception:
             return None, None
+
+    @staticmethod
+    def play_sound(action: str) -> None:
+        try:
+            if action not in ("center", "capture", "ignore"):
+                return
+
+            sound = Path(__file__).parent / "sounds" / action
+
+            winsound.PlaySound(
+                f"{sound}.wav",
+                winsound.SND_FILENAME
+                | winsound.SND_ASYNC
+                | winsound.SND_NODEFAULT
+            )
+        except RuntimeError:
+            pass

@@ -203,7 +203,7 @@
                 <article class="feature-card">
                     <span class="feature-icon">↻</span>
                     <h3>Live configuration</h3>
-                    <p>Valid presets, ignored applications, and logging changes load while the listener is running.</p>
+                    <p>Valid presets, ignored applications, logging, and sound changes load while the listener is running.</p>
                 </article>
 
                 <article class="feature-card feature-card-wide">
@@ -419,7 +419,12 @@
     }
   },
   "logging": false,
-  "ignored_presets": []
+  "ignored_presets": [],
+  "play_sound": {
+    "center": false,
+    "capture": false,
+    "ignore": false
+  }
 }</code></pre>
                 </aside>
             </div>
@@ -463,7 +468,7 @@
                 </article>
                 <article>
                     <strong>Live reload</strong>
-                    <p>Valid preset, ignore-list, and logging changes apply while Centre runs.</p>
+                    <p>Valid preset, ignore-list, logging, and action-sound changes apply while Centre runs.</p>
                 </article>
                 <article>
                     <strong>Default migration</strong>
@@ -472,6 +477,10 @@
                 <article>
                     <strong>Configurable logging</strong>
                     <p>Set <code>logging</code> to <code>true</code> to write activity and errors to <code>centre.log</code>.</p>
+                </article>
+                <article>
+                    <strong>Optional action sounds</strong>
+                    <p>Enable successful Center, Capture, or Ignore confirmations individually under <code>play_sound</code>.</p>
                 </article>
                 <article>
                     <strong>Invalid config is fatal</strong>
@@ -485,6 +494,16 @@
                     <strong>Shortcut changes require a restart.</strong> Centre reloads the
                     configuration file live, but keyboard hooks are registered when the
                     listener starts. Stop and restart <code>centre -s</code> after editing a shortcut.
+                </p>
+            </aside>
+
+            <aside class="note note-info">
+                <span class="note-mark">i</span>
+                <p>
+                    <strong>Sounds are off by default.</strong> Set <code>play_sound.center</code>,
+                    <code>play_sound.capture</code>, or <code>play_sound.ignore</code> to
+                    <code>true</code>. The Center setting also covers Center All, and sounds
+                    play only after successful actions.
                 </p>
             </aside>
 
@@ -628,8 +647,8 @@
                 <span class="section-number">08</span>
                 <div>
                     <p class="kicker">Latest changes</p>
-                    <h2>Safer startup, shutdown, and diagnostics.</h2>
-                    <p>Centre 0.8.2 and 0.8.3 focused on making the listener easier to operate and troubleshoot.</p>
+                    <h2>Clear feedback, reliable operation.</h2>
+                    <p>Centre 0.9.0 adds optional action sounds while retaining the listener reliability improvements from earlier releases.</p>
                 </div>
             </div>
 
@@ -657,6 +676,10 @@
                 <article>
                     <strong>Consistent ignored presets</strong>
                     <p>Center-all now skips executables listed in <code>ignored_presets</code>.</p>
+                </article>
+                <article>
+                    <strong>Optional sound feedback</strong>
+                    <p>Enable bundled confirmations for successful Center, Center All, Capture, and Ignore actions.</p>
                 </article>
             </div>
 
