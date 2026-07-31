@@ -5,6 +5,18 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.9.0] - 2026-07-31
+
+### Added
+
+- Added optional confirmation sounds for successful Center, Center All, Capture, and Ignore actions.
+- Added `play_sound.center`, `play_sound.capture`, and `play_sound.ignore` configuration options, disabled by default.
+- Packaged the Center, Capture, and Ignore WAV resources with the application.
+
+### Changed
+
+- Updated the package version to `0.9.0`.
+
 ## [0.8.4] - 2026-07-30
 
 ### Fixed

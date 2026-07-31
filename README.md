@@ -82,8 +82,8 @@ The action flags are mutually exclusive, so use one action per invocation.
 ## Automatic Configuration Reload
 
 While Centre is running, it watches `config.json` for changes. Saving a valid
-change reloads presets, ignored applications, and logging settings without
-restarting the process.
+change reloads presets, ignored applications, logging settings, and action-sound
+preferences without restarting the process.
 
 Keyboard shortcuts are registered when the listener starts. Changing a shortcut
 in `bindings` requires you to stop and restart Centre before the new shortcut is
@@ -130,15 +130,20 @@ The default config includes these values:
         }
     },
     "logging": false,
-    "ignored_presets": []
+    "ignored_presets": [],
+    "play_sound": {
+        "center": false,
+        "capture": false,
+        "ignore": false
+    }
 }
 ```
 
 ## Configuration Validation and Migration
 
-Centre validates the complete configuration, including window presets and
-predefined keyboard shortcuts. Unknown configuration fields, shortcut names,
-and preset properties are rejected.
+Centre validates the complete configuration, including window presets,
+predefined keyboard shortcuts, and action-sound preferences. Unknown
+configuration fields, shortcut names, and preset properties are rejected.
 
 When a valid configuration is missing fields that have defaults, Centre adds
 those defaults and writes the migrated configuration back to `config.json`.
@@ -177,6 +182,29 @@ Log entries include a timestamp, severity level, and message:
 Centre logs window-management activity and errors. Entries may contain
 normalized executable names and captured preset details. The log file is
 append-only and is not automatically rotated or deleted.
+
+## Action Sounds
+
+Action sounds are disabled by default. Enable only the confirmations you want
+under `play_sound` in `config.json`:
+
+```json
+{
+    "play_sound": {
+        "center": true,
+        "capture": true,
+        "ignore": true
+    }
+}
+```
+
+The `center` setting applies to both the active-window Center action and Center
+All. The `capture` and `ignore` settings control their corresponding actions.
+Centre plays a sound only after an action succeeds; pressing Ignore for an
+application that is already ignored does not play another confirmation.
+
+Saving valid action-sound changes applies them immediately while the listener
+is running. No restart is required.
 
 ___
 
@@ -288,7 +316,12 @@ Your final config should look something like this:
     "logging": false,
     "ignored_presets": [
         "NOTEPAD++"
-    ]
+    ],
+    "play_sound": {
+        "center": false,
+        "capture": false,
+        "ignore": false
+    }
 }
 ```
 
