@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict, Field
 from typing import TypedDict
+
+from pydantic import BaseModel, ConfigDict, Field
 from pygetwindow import Win32Window
 
 
