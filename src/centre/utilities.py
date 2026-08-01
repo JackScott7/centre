@@ -1,16 +1,18 @@
 import json
-import win32process
-import psutil
-import os
-import pygetwindow as gw
 import logging
+import os
 import winsound
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from pyautogui import size as resolution_size
-from importlib.metadata import version, PackageNotFoundError
-from pygetwindow import Win32Window
-from .schemas import Config, WindowPreset, ActiveWindow
 
+import psutil
+import pygetwindow as gw
+import pywintypes
+import win32api
+import win32process
+from pygetwindow import Win32Window
+
+from .schemas import ActiveWindow, Config, WindowPreset
 
 log = logging.getLogger("centre")
 
@@ -22,7 +24,8 @@ class Utilities:
 
     @staticmethod
     def get_display_resolution() -> str:
-        width, height = resolution_size()
+        width = win32api.GetSystemMetrics(0)
+        height = win32api.GetSystemMetrics(1)
         return f"{width}x{height}"
 
     @staticmethod
@@ -61,8 +64,8 @@ class Utilities:
 
         app_poses = config.presets[Utilities.get_display_resolution()]
 
-        if window_name in app_poses.keys():
-            log.info(f"Centering %s", window_name)
+        if window_name in app_poses:
+            log.info("Centering %s", window_name)
             window.resizeTo(app_poses[window_name].SIZE_X, app_poses[window_name].SIZE_Y)
             window.moveTo(app_poses[window_name].LEFT, app_poses[window_name].TOP)
 
@@ -75,7 +78,7 @@ class Utilities:
             log.info("No Default Position is defined")
             return
 
-        log.info(f"Centering %s to Default_Position", window_name)
+        log.info("Centering %s to Default_Position", window_name)
         window.resizeTo(app_poses['Default_Position'].SIZE_X, app_poses['Default_Position'].SIZE_Y)
         window.moveTo(app_poses['Default_Position'].LEFT, app_poses['Default_Position'].TOP)
 
@@ -126,7 +129,7 @@ class Utilities:
             SIZE_Y=window.size.height
         )
 
-        log.info(f"New/Update Preset (%s):\n%s", window_name, preset)
+        log.info("New/Update Preset (%s):\n%s", window_name, preset)
 
         Utilities.add_update_preset(window_name, preset, centre)
 
@@ -154,7 +157,7 @@ class Utilities:
 
         if window_name not in ignored_presets:
             ignored_presets.append(window_name)
-            log.info(f"Ignoring %s", window_name)
+            log.info("Ignoring %s", window_name)
             Utilities.update_config(config)
 
             if centre.config.play_sound.ignore:
@@ -184,25 +187,25 @@ class Utilities:
         presets = centre.config.presets[Utilities.get_display_resolution()]
 
         if not presets:
-            log.info(f"No presets found")
+            log.info("No presets found")
             return
 
         # filter all the active windows that are open by EXECUTABLE names in presets
         #  and ignore the ones that are in ignored_presets
         all_active = [
             window for window in windows
-            if window["name"] in presets.keys() and window["name"] not in
+            if window["name"] in presets and window["name"] not in
             centre.config.ignored_presets
         ]
 
         if not all_active:
-            log.info(f"No matching presets found")
+            log.info("No matching presets found")
             return
 
         for window in all_active:
             win = window["win"]
             name = window["name"]
-            log.info(f"Centering %s", name)
+            log.info("Centering %s", name)
             win.resizeTo(presets[name].SIZE_X, presets[name].SIZE_Y)
             win.moveTo(presets[name].LEFT, presets[name].TOP)
 
@@ -230,13 +233,8 @@ class Utilities:
             _, pid = win32process.GetWindowThreadProcessId(window._hWnd)
             process_name = os.path.splitext(psutil.Process(pid).name())[0].upper()
             return window, process_name
-        except psutil.NoSuchProcess as e:
-            log.exception("No Such Process exists. %s", e)
-            return None, None
-        except psutil.AccessDenied as e:
-            log.exception("Access Denied. %s", e)
-            return None, None
-        except Exception:
+        except (psutil.NoSuchProcess, psutil.AccessDenied, pywintypes.error) as error:
+            log.warning("Could not resolve the window's process: %s", error)
             return None, None
 
     @staticmethod
