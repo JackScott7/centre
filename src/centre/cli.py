@@ -1,8 +1,9 @@
 import argparse
 from contextlib import nullcontext
+
 from .core import Centre
+from .singleinstance import CentreAlreadyRunning, SingleInstanceMutex
 from .utilities import Utilities
-from .singleinstance import SingleInstanceMutex, CentreAlreadyRunning
 
 
 def main() -> None:

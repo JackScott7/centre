@@ -1,5 +1,6 @@
 from pathlib import Path
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
+
+from watchdog.events import DirModifiedEvent, FileModifiedEvent, FileSystemEventHandler
 
 
 class ConfigWatcher(FileSystemEventHandler):
@@ -7,7 +8,10 @@ class ConfigWatcher(FileSystemEventHandler):
         self.centre = centre
         self.config_path = Path(centre.config_file_path).resolve()
 
-    def on_modified(self, event: FileModifiedEvent):
+    def on_modified(self, event: DirModifiedEvent | FileModifiedEvent) -> None:
+        if event.is_directory:
+            return
+
         event_path = Path(str(event.src_path)).resolve()
 
         try:

@@ -5,6 +5,13 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.9.1] - 2026-08-01
+
+### Changed
+
+- Removed the PyAutoGUI dependency and used the existing PyWin32 dependency to determine the primary display resolution.
+- Improved import organization, logging calls, type annotations, and handling of expected process and Win32 errors.
+
 ## [0.9.0] - 2026-07-31
 
 ### Added
