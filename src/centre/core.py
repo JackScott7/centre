@@ -1,14 +1,15 @@
 import json
 import logging
 import os
-import keyboard
 from threading import Event
-from watchdog.observers import Observer
-from pydantic import ValidationError
-from .configwatcher import ConfigWatcher
-from .utilities import Utilities
-from .schemas import Config
 
+import keyboard
+from pydantic import ValidationError
+from watchdog.observers import Observer
+
+from .configwatcher import ConfigWatcher
+from .schemas import Config
+from .utilities import Utilities
 
 log = logging.getLogger("centre")
 
