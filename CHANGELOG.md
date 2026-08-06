@@ -5,6 +5,33 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.10.0] - 2026-08-06
+
+### Added
+
+- Added opt-in Focus Window shortcuts through the new `wm` configuration section.
+- Added `FocusPreset` support for matching an open window by its executable preset key and an optional case-insensitive title substring.
+- Added `center_on_focus` so a focused window can optionally be resized and moved to its configured WindowPreset.
+- Added reliable Windows foreground activation that restores minimized windows, retries foreground activation, and temporarily attaches input queues when Windows rejects the initial request.
+- Added `HotkeyRegistry` validation for duplicate Focus Window shortcuts and conflicts with Centre's predefined shortcuts.
+- Added Pydantic validation for Focus Window hotkey syntax during startup and live configuration reloads.
+
+### Changed
+
+- Split predefined and Focus Window shortcut discovery and registration into separate listener paths.
+- Added `FocusManager` and `FocusPreset` to the strict configuration schema, with Focus Window disabled by default.
+- Automatically selects and saves the only available layout as `wm.target_preset` when no target is configured.
+- Updated the package version and lockfile metadata to `0.10.0`.
+
+### Fixed
+
+- Prevented duplicate or conflicting Focus Window shortcuts from being registered.
+- Prevented invalid Focus Window hotkeys from starting or remaining in a running Centre configuration.
+- Prevented stale Focus Window callbacks from acting after Window Manager is disabled or the matching WindowPreset is removed.
+- Prevented centering after foreground activation fails.
+- Handled windows that close between discovery and activation without allowing expected Win32 errors to escape the hotkey callback.
+- Added explicit handling for missing target layouts, missing executable presets, inaccessible processes, and absent matching windows.
+
 ## [0.9.1] - 2026-08-01
 
 ### Changed

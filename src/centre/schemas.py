@@ -1,6 +1,7 @@
 from typing import TypedDict
 
-from pydantic import BaseModel, ConfigDict, Field
+import keyboard
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pygetwindow import Win32Window
 
 
@@ -42,6 +43,35 @@ class SoundActions(BaseModel):
     capture: bool = False
     ignore: bool = False
 
+class FocusPreset(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    center_on_focus: bool = False
+
+    executable: str = Field(min_length=1)
+    hotkey: str = Field(min_length=1)
+    title_contains: str | None = None
+
+    @field_validator('hotkey')
+    @classmethod
+    def validate_hotkey(cls, value: str) -> str:
+        try:
+            keyboard.parse_hotkey(value)
+        except (ValueError, TypeError) as error:
+            raise (
+                ValueError(f"'{value}' is not a valid hotkey")
+            ) from error
+
+        return value
+
+
+class FocusManager(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    enabled: bool = False
+    target_preset: str = Field(default_factory=str)
+    presets: list[FocusPreset] = Field(default_factory=list)
+
 
 class Config(BaseModel):
     """
@@ -49,8 +79,9 @@ class Config(BaseModel):
     """
     model_config = ConfigDict(extra="forbid")
 
-    presets: dict[str, dict[str, WindowPreset]]= Field(default_factory=dict)
-    predefined_keybindings: KeyBinding = Field(default_factory=KeyBinding)
     logging: bool = False
-    ignored_presets: list[str] = Field(default_factory=list)
     play_sound: SoundActions = Field(default_factory=SoundActions)
+    predefined_keybindings: KeyBinding = Field(default_factory=KeyBinding)
+    wm: FocusManager = Field(default_factory=FocusManager)
+    presets: dict[str, dict[str, WindowPreset]]= Field(default_factory=dict)
+    ignored_presets: list[str] = Field(default_factory=list)

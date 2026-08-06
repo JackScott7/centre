@@ -86,8 +86,10 @@ change reloads presets, ignored applications, logging settings, and action-sound
 preferences without restarting the process.
 
 Keyboard shortcuts are registered when the listener starts. Changing a shortcut
-in `bindings` requires you to stop and restart Centre before the new shortcut is
-used.
+in `bindings` or `wm.presets` requires you to stop and restart Centre before the
+new shortcut is used. Setting `wm.enabled` to `false` stops registered Focus
+Window actions immediately; enabling it or adding a Focus Window shortcut
+requires a restart so the keyboard hook can be registered.
 
 If `config.json` is invalid at startup, Centre reports the problem and exits
 without starting the listener. If a saved configuration becomes invalid while
@@ -116,8 +118,11 @@ The default config includes these values:
 
 ```json
 {
-    "presets": {
-        "1920x1080": {}
+    "logging": false,
+    "play_sound": {
+        "center": false,
+        "capture": false,
+        "ignore": false
     },
     "predefined_keybindings": {
         "enabled": true,
@@ -129,21 +134,24 @@ The default config includes these values:
             "center_all": "ctrl+alt+a"
         }
     },
-    "logging": false,
-    "ignored_presets": [],
-    "play_sound": {
-        "center": false,
-        "capture": false,
-        "ignore": false
-    }
+    "wm": {
+        "enabled": false,
+        "target_preset": "",
+        "presets": []
+    },
+    "presets": {
+        "1920x1080": {}
+    },
+    "ignored_presets": []
 }
 ```
 
 ## Configuration Validation and Migration
 
 Centre validates the complete configuration, including window presets,
-predefined keyboard shortcuts, and action-sound preferences. Unknown
-configuration fields, shortcut names, and preset properties are rejected.
+predefined keyboard shortcuts, Focus Window hotkey syntax, and action-sound
+preferences. Unknown configuration fields, shortcut names, and preset
+properties are rejected.
 
 When a valid configuration is missing fields that have defaults, Centre adds
 those defaults and writes the migrated configuration back to `config.json`.
@@ -205,6 +213,57 @@ application that is already ignored does not play another confirmation.
 
 Saving valid action-sound changes applies them immediately while the listener
 is running. No restart is required.
+
+## Focus Window Shortcuts
+
+Focus Window assigns a shortcut directly to an application WindowPreset. It is
+disabled by default and does not launch applications that are not already open.
+
+The configured `executable` must exactly match a key in the selected target
+layout. Captured WindowPreset keys are uppercase and omit `.exe`, such as
+`WINDOWSTERMINAL`.
+
+```json
+{
+    "wm": {
+        "enabled": true,
+        "target_preset": "1920x1080",
+        "presets": [
+            {
+                "center_on_focus": true,
+                "executable": "WINDOWSTERMINAL",
+                "hotkey": "ctrl+alt+1",
+                "title_contains": "PowerShell"
+            }
+        ]
+    }
+}
+```
+
+- `enabled` controls the complete Focus Window feature and defaults to `false`.
+- `target_preset` selects the layout containing the required WindowPresets. If
+  exactly one layout exists and this value is empty, Centre selects and saves it
+  automatically. With multiple layouts, configure the target explicitly.
+- `executable` must exactly match a WindowPreset key under `target_preset`.
+- `hotkey` is validated when the configuration loads.
+- `title_contains` optionally narrows matches using a case-insensitive title
+  substring. Use `null` when the executable match is sufficient.
+- `center_on_focus` defaults to `false`. When `true`, Centre focuses the window
+  and then applies its position and size from the target layout.
+
+If multiple visible windows match, Centre keeps the active match when possible;
+otherwise it focuses the first match returned by Windows. Minimized matches are
+restored before activation.
+
+Focus Window shortcuts must be unique. If any two Focus Window shortcuts are
+equivalent, or one conflicts with a predefined Centre shortcut, none of the
+Focus Window shortcuts are registered. Invalid hotkey names make the
+configuration invalid.
+
+Changing a Focus Window hotkey, executable, or title filter requires a listener
+restart. Layout positions and `target_preset` are read from the current valid
+configuration when a registered shortcut runs. Disabling `wm` or removing its
+WindowPreset prevents a previously registered callback from acting.
 
 ___
 
@@ -283,25 +342,18 @@ A window preset should look like this:
 | Ignore     | `ctrl+alt+i` | Add the active application to `ignored_presets`.             |
 | Center All | `ctrl+alt+a` | Apply presets to all matching open windows.                  |
 
+Focus Window shortcuts have no defaults; define them individually under
+`wm.presets`.
+
 Your final config should look something like this:
 
 ```json
 {
-    "presets": {
-        "1920x1080": {
-            "WINDOWSTERMINAL": {
-                "LEFT": 224,
-                "TOP": 168,
-                "SIZE_X": 1473,
-                "SIZE_Y": 697
-            },
-            "Default_Position": {
-                "LEFT": 25,
-                "TOP": 34,
-                "SIZE_X": 1860,
-                "SIZE_Y": 980
-            }
-        }
+    "logging": true,
+    "play_sound": {
+        "center": true,
+        "capture": true,
+        "ignore": true
     },
     "predefined_keybindings": {
         "enabled": true,
@@ -313,15 +365,43 @@ Your final config should look something like this:
             "center_all": "ctrl+alt+a"
         }
     },
-    "logging": false,
+    "wm": {
+        "enabled": true,
+        "target_preset": "1920x1080",
+        "presets": [
+            {
+                "center_on_focus": true,
+                "executable": "WINDOWSTERMINAL",
+                "hotkey": "ctrl+alt+1",
+                "title_contains": null
+            }
+        ]
+    },
+    "presets": {
+        "1920x1080": {
+          "WINDOWSTERMINAL": {
+                "LEFT": 217,
+                "TOP": 169,
+                "SIZE_X": 1486,
+                "SIZE_Y": 695
+            },
+            "NOTEPAD++": {
+                "LEFT": -5,
+                "TOP": 374,
+                "SIZE_X": 1930,
+                "SIZE_Y": 664
+            },
+            "Default_Position": {
+                "LEFT": 25,
+                "TOP": 34,
+                "SIZE_X": 1860,
+                "SIZE_Y": 980
+            }
+        }
+    },
     "ignored_presets": [
-        "NOTEPAD++"
-    ],
-    "play_sound": {
-        "center": false,
-        "capture": false,
-        "ignore": false
-    }
+        "EXPLORER"
+    ]
 }
 ```
 
