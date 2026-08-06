@@ -9,10 +9,12 @@ import psutil
 import pygetwindow as gw
 import pywintypes
 import win32api
+import win32con
+import win32gui
 import win32process
 from pygetwindow import Win32Window
 
-from .schemas import ActiveWindow, Config, WindowPreset
+from .schemas import ActiveWindow, Config, FocusPreset, WindowPreset
 
 log = logging.getLogger("centre")
 
@@ -253,3 +255,151 @@ class Utilities:
             )
         except RuntimeError:
             pass
+
+    @staticmethod
+    def activate_window(window: Win32Window) -> bool:
+        hwnd = window._hWnd
+
+        if win32gui.GetForegroundWindow() == hwnd:
+            return True
+
+        if win32gui.IsIconic(hwnd):
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+
+        # Normal supported attempt.
+        try:
+            win32gui.SetForegroundWindow(hwnd)
+        except pywintypes.error:
+            pass
+
+        if win32gui.GetForegroundWindow() == hwnd:
+            return True
+
+        # Explicit hotkey action: temporarily share input queues.
+        foreground_hwnd = win32gui.GetForegroundWindow()
+        current_thread = win32api.GetCurrentThreadId()
+
+        try:
+            foreground_thread, _ = (
+                win32process.GetWindowThreadProcessId(foreground_hwnd)
+                if foreground_hwnd
+                else (0, 0)
+            )
+            target_thread, _ = win32process.GetWindowThreadProcessId(hwnd)
+        except pywintypes.error:
+            return False
+
+        attached_threads: list[int] = []
+
+        try:
+            for thread_id in dict.fromkeys((foreground_thread, target_thread)):
+                if not thread_id or thread_id == current_thread:
+                    continue
+
+                win32process.AttachThreadInput(
+                    current_thread,
+                    thread_id,
+                    True,
+                )
+                attached_threads.append(thread_id)
+
+            win32gui.BringWindowToTop(hwnd)
+
+            try:
+                win32gui.SetForegroundWindow(hwnd)
+            except pywintypes.error:
+                pass
+
+            return win32gui.GetForegroundWindow() == hwnd
+
+        except pywintypes.error as error:
+            log.warning(
+                "Could not attach input queues while focusing %s: %s",
+                window.title,
+                error,
+            )
+            return False
+
+        finally:
+            for thread_id in reversed(attached_threads):
+                try:
+                    win32process.AttachThreadInput(
+                        current_thread,
+                        thread_id,
+                        False,
+                    )
+                except pywintypes.error:
+                    log.warning(
+                        "Could not detach input queue from thread %s",
+                        thread_id,
+                    )
+
+    @staticmethod
+    def find_window_by_preset(preset: FocusPreset) -> Win32Window | None:
+        executable =  Path(preset.executable).stem.upper()
+        title_filter = (
+            preset.title_contains.casefold()
+            if preset.title_contains
+            else None
+        )
+
+        matches: list[Win32Window] = []
+
+        for candidate in gw.getAllWindows():
+            window, process_name = Utilities.get_window(candidate)
+
+            if not window or process_name != executable:
+                continue
+
+            if title_filter and title_filter not in window.title.casefold():
+                continue
+
+            matches.append(window)
+
+        if not matches:
+            return None
+
+        return next(
+            (window for window in matches if window.isActive),
+            matches[0]
+        )
+
+    @staticmethod
+    def focus_window(preset: FocusPreset, centre) -> None:
+        if not centre.config.wm.enabled:
+            return
+
+        tp = centre.config.wm.target_preset
+        app_poses: dict[str, WindowPreset] = centre.config.presets.get(tp)
+
+        if not app_poses:
+            log.warning("target_preset in WM is not present in presets object: %s", tp)
+            return
+
+        if preset.executable not in app_poses:
+            log.error("Preset %s not found in presets", preset.executable)
+            return
+
+        window = Utilities.find_window_by_preset(preset)
+
+        if window is None:
+            log.info("No open window matched: %s", preset)
+            return
+
+        if not Utilities.activate_window(window):
+            log.warning(
+                "Windows denied foreground activation for %s: %s",
+                preset.executable,
+                window.title
+            )
+            return
+
+        log.info("Focused %s: %s", preset.executable, window.title)
+
+        if not preset.center_on_focus:
+            return
+
+        log.info("Centering %s", preset.executable)
+
+        window.resizeTo(app_poses[preset.executable].SIZE_X, app_poses[preset.executable].SIZE_Y)
+        window.moveTo(app_poses[preset.executable].LEFT, app_poses[preset.executable].TOP)
