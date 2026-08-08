@@ -131,15 +131,15 @@ class Centre:
         for k, v in bindings.items():
             match k:
                 case "center":
-                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args)
+                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args, suppress=True)
                 case "minimize":
-                    keyboard.add_hotkey(v, Utilities.minimize_window_hotkey)
+                    keyboard.add_hotkey(v, Utilities.minimize_window_hotkey, suppress=True)
                 case "capture":
-                    keyboard.add_hotkey(v, Utilities.capture_hotkey, hotkey_args)
+                    keyboard.add_hotkey(v, Utilities.capture_hotkey, hotkey_args, suppress=True)
                 case "ignore_preset":
-                    keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, hotkey_args)
+                    keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, hotkey_args, suppress=True)
                 case "center_all":
-                    keyboard.add_hotkey(v, Utilities.center_all_hotkey, hotkey_args)
+                    keyboard.add_hotkey(v, Utilities.center_all_hotkey, hotkey_args, suppress=True)
                 case _:
                     pass
 
@@ -182,7 +182,7 @@ class Centre:
                 log.error("No WindowPreset was found for '%s' from '%s'", preset.executable, preset)
                 continue
 
-            keyboard.add_hotkey(preset.hotkey, Utilities.focus_window, (preset, self))
+            keyboard.add_hotkey(preset.hotkey, Utilities.focus_window, (preset, self), suppress=True)
             log.info(f"FocusWindow Hotkey '{preset.hotkey}' assigned for '{preset.executable}'")
 
     def request_shutdown(self, reason: str) -> None:
