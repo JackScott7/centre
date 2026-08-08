@@ -5,6 +5,13 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.10.1] - 2026-08-08
+
+### Fixed
+
+- an unwanted behavior where pressing a shortcut (e.g. ctrl+alt+d) would cause the literal character 'd' in the shortcut to be typed/inserted
+
+
 ## [0.10.0] - 2026-08-06
 
 ### Added
