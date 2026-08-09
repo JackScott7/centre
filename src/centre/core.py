@@ -163,7 +163,7 @@ class Centre:
             # Update the config with tp (target_preset) as WM's target preset
             Utilities.update_config(self.config)
 
-        hk_registry = HotkeyRegistry(self.config)
+        hk_registry = HotkeyRegistry(self.config, self.config.logging)
         valid_registry = hk_registry.validate()
         if not valid_registry:
             log.warning("Duplicate WM hotkeys detected, please remove any duplications from WM presets and try again.")
@@ -247,6 +247,8 @@ class Centre:
                 log.warning("WM is not enabled in config, skipping...")
 
             self.__config_observer.start()
+            if self.config.logging:
+                log.info("Centre running in background")
             print("[+] Centre running in background")
 
             while not self.__shutdown_event.wait(0.25):
