@@ -369,6 +369,9 @@ class Utilities:
         if not centre.config.wm.enabled:
             return
 
+        if preset.executable in centre.config.ignored_presets:
+            return
+
         tp = centre.config.wm.target_preset
         app_poses: dict[str, WindowPreset] = centre.config.presets.get(tp)
 
