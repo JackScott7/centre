@@ -5,6 +5,12 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.10.3] - 2026-08-09
+
+### Fixed
+
+- HotkeyRegistry will now respect `centre.config.logging` (simply `logging` in `config.json`)
+
 ## [0.10.2] - 2026-08-09
 
 ### Fixed
