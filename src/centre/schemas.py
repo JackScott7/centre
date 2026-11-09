@@ -1,7 +1,10 @@
+from datetime import datetime
+from enum import Enum
 from typing import TypedDict
 
 import keyboard
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic.dataclasses import dataclass
 from pygetwindow import Win32Window
 
 
@@ -43,6 +46,7 @@ class SoundActions(BaseModel):
     capture: bool = False
     ignore: bool = False
 
+
 class FocusPreset(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -73,6 +77,62 @@ class FocusManager(BaseModel):
     presets: list[FocusPreset] = Field(default_factory=list)
 
 
+class CloudSync(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool = False
+    version: int = Field(default=1)
+
+
+@dataclass
+class CloudSyncUserObj:
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    email: str
+    emailVerified: bool
+    image: str | None
+    createdAt: datetime
+    updatedAt: datetime
+    role: str | None
+    banned: bool
+    banReason: str | None
+    banExpires: str | None
+    id: str
+
+
+@dataclass
+class CloudSyncSignin:
+    model_config = ConfigDict(extra="forbid")
+
+    redirect: bool
+    token: str
+    user: CloudSyncUserObj
+
+
+@dataclass
+class CloudSyncToken:
+    model_config = ConfigDict(extra="forbid")
+
+    token: str
+
+
+@dataclass
+class CloudConfigResponse:
+    model_config = ConfigDict(extra="forbid")
+
+    id: int
+    json: dict
+    belongs_to: str
+    updated_at: datetime
+    version: int
+
+
+class AuthKind(Enum):
+    SIGN_IN = 0
+    TOKEN = 1
+
+
 class Config(BaseModel):
     """
     Base Centre configuration Model
@@ -82,6 +142,7 @@ class Config(BaseModel):
     logging: bool = False
     play_sound: SoundActions = Field(default_factory=SoundActions)
     predefined_keybindings: KeyBinding = Field(default_factory=KeyBinding)
+    cloud: CloudSync = Field(default_factory=CloudSync)
     wm: FocusManager = Field(default_factory=FocusManager)
     presets: dict[str, dict[str, WindowPreset]]= Field(default_factory=dict)
     ignored_presets: list[str] = Field(default_factory=list)
