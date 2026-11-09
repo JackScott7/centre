@@ -343,7 +343,7 @@ Introduces in v0.11.0, this feature will allow to have your local config synced 
 You can try it out by creating an account [Here](https://centre-signup.syntaxly.bond/), then use the same credentials to populate the following environment variables in your local machine:
 
 1. `CENTRE_CLOUD_USERNAME`
-2. `CENTRE_CLOUD_USERNAME`
+2. `CENTRE_CLOUD_PASSWORD`
 
 
 ## Default Shortcuts
