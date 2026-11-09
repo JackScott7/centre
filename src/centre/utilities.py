@@ -41,6 +41,16 @@ class Utilities:
         return os.path.join(config_dir, 'config.json')
 
     @staticmethod
+    def get_auth_file_path() -> str:
+        config_dir = os.path.join(os.path.expanduser("~"), ".centre")
+        return os.path.join(config_dir, "auth-token.json")
+    
+    @staticmethod
+    def get_token_file_path() -> str:
+        config_dir = os.path.join(os.path.expanduser("~"), ".centre")
+        return os.path.join(config_dir, "token.json")
+
+    @staticmethod
     def minimize_window_hotkey() -> None:
         window, name = Utilities.get_window()
 
