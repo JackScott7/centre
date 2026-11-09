@@ -134,6 +134,10 @@ The default config includes these values:
             "center_all": "ctrl+alt+a"
         }
     },
+    "cloud": {
+        "enabled": false,
+        "version": 0
+    },
     "wm": {
         "enabled": false,
         "target_preset": "",
@@ -332,7 +336,23 @@ A window preset should look like this:
 - `Default_Position` is useful when you have a list of apps that you have set a custom position for,
   but intend to keep all other apps in one specific location.
 
+
+## Cloud Sync
+Introduces in v0.11.0, this feature will allow to have your local config synced with an account on a remote.
+
+You can try it out by creating an account [Here](https://centre-signup.syntaxly.bond/), then use the same credentials to populate the following environment variables in your local machine:
+
+1. `CENTRE_CLOUD_USERNAME`
+2. `CENTRE_CLOUD_USERNAME`
+
+
 ## Default Shortcuts
+
+Centre does not suppress keyboard shortcuts, avoiding the `keyboard` library's
+modifier-blocking behavior that can leave Ctrl or Alt appearing stuck. This
+applies to both the default shortcuts and Focus Window shortcuts. The active
+application also receives the keystrokes and may perform its own shortcut action
+or insert text. Choose shortcuts that do not conflict with your applications.
 
 | Action     | Shortcut     | Description                                                  |
 |------------|--------------|--------------------------------------------------------------|
@@ -364,6 +384,10 @@ Your final config should look something like this:
             "ignore_preset": "ctrl+alt+i",
             "center_all": "ctrl+alt+a"
         }
+    },
+    "cloud": {
+        "enabled": true,
+        "version": 14
     },
     "wm": {
         "enabled": true,
