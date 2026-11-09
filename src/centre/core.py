@@ -1,12 +1,13 @@
 import json
 import logging
 import os
-from threading import Event
+from threading import Event, Thread
 
 import keyboard
 from pydantic import ValidationError
 from watchdog.observers import Observer
 
+from .cloud_sync import CloudSync
 from .configwatcher import ConfigWatcher
 from .hotkeyregistry import HotkeyRegistry
 from .schemas import Config, FocusPreset
@@ -25,12 +26,15 @@ class Centre:
     def __init__(self):
         self.__exit_reason: str | None = None
         self.__shutdown_event: Event = Event()
+        self.__sync_event: Event = Event()
 
         self.log_file_path = Utilities.get_log_file_path()
         self.config_file_path = Utilities.get_config_file_path()
 
         config_dir = os.path.dirname(self.config_file_path)
         os.makedirs(config_dir, exist_ok=True)
+
+        self.__last_settings: dict | None = None
 
         if os.path.isfile(self.config_file_path):
             self.load_config()
@@ -131,15 +135,15 @@ class Centre:
         for k, v in bindings.items():
             match k:
                 case "center":
-                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args, suppress=True)
+                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args, suppress=False, trigger_on_release=True)
                 case "minimize":
-                    keyboard.add_hotkey(v, Utilities.minimize_window_hotkey, suppress=True)
+                    keyboard.add_hotkey(v, Utilities.minimize_window_hotkey, suppress=False)
                 case "capture":
-                    keyboard.add_hotkey(v, Utilities.capture_hotkey, hotkey_args, suppress=True)
+                    keyboard.add_hotkey(v, Utilities.capture_hotkey, hotkey_args, suppress=False)
                 case "ignore_preset":
-                    keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, hotkey_args, suppress=True)
+                    keyboard.add_hotkey(v, Utilities.ignore_window_hotkey, hotkey_args, suppress=False)
                 case "center_all":
-                    keyboard.add_hotkey(v, Utilities.center_all_hotkey, hotkey_args, suppress=True)
+                    keyboard.add_hotkey(v, Utilities.center_all_hotkey, hotkey_args, suppress=False)
                 case _:
                     pass
 
@@ -182,14 +186,14 @@ class Centre:
                 log.error("No WindowPreset was found for '%s' from '%s'", preset.executable, preset)
                 continue
 
-            keyboard.add_hotkey(preset.hotkey, Utilities.focus_window, (preset, self), suppress=True)
+            keyboard.add_hotkey(preset.hotkey, Utilities.focus_window, (preset, self), suppress=False)
             log.info(f"FocusWindow Hotkey '{preset.hotkey}' assigned for '{preset.executable}'")
 
     def request_shutdown(self, reason: str) -> None:
         self.__exit_reason = reason
         self.__shutdown_event.set()
 
-    def load_config(self) -> None:
+    def load_config(self, increment_version: bool = False) -> None:
         """
         Load the `config.json`
 
@@ -203,11 +207,23 @@ class Centre:
             with open(self.config_file_path, "r") as f:
                 raw_config = json.load(f)
 
-            self.__config: Config = Config.model_validate(raw_config)
-            migrated_config = self.__config.model_dump()
+            config = Config.model_validate(raw_config)
+            settings = config.model_dump(exclude={"cloud": {"version"}})
 
-            if migrated_config != raw_config:
-                Utilities.update_config(self.__config)
+            changed = (
+                self.__last_settings is not None
+                and self.__last_settings != settings
+            )
+
+            if increment_version and changed:
+                config.cloud.version += 1
+                self.__sync_event.set()
+
+            self.__config = config
+            self.__last_settings = settings
+
+            if config.model_dump() != raw_config:
+                Utilities.update_config(config)
 
             self.__configure_logging()
 
@@ -250,6 +266,18 @@ class Centre:
             if self.config.logging:
                 log.info("Centre running in background")
             print("[+] Centre running in background")
+
+            # handle cloud sync
+            if self.config.cloud.enabled:
+                thread = Thread(
+                    name="CloudSync",
+                    daemon=True,
+                    target=CloudSync(self.config.logging).start,
+                    args=(self, self.__sync_event),
+                )
+                if self.config.logging:
+                    log.info("Starting CloudSync daemon...")
+                thread.start()
 
             while not self.__shutdown_event.wait(0.25):
                 pass

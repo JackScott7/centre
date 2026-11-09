@@ -5,6 +5,22 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
+## [0.11.0]
+
+
+### Added
+- Introduced CloudSync. where you can keep your local config sync with a remote cloud. can be used when using multiple devices with a single config.
+
+#### Note
+- In case you didn't catch this in your logs, the signup url is: https://centre-signup.syntaxly.bond
+
+
+### Changed
+
+- Disabled keyboard suppression for All Window shortcuts to avoid
+  suppression-related stuck modifiers. Shortcut keystrokes now also reach the
+  active application, reversing the input-blocking behavior introduced in 0.10.1.
+
 ## [0.10.3] - 2026-08-09
 
 ### Fixed
