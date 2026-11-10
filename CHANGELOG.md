@@ -5,7 +5,13 @@ All notable changes to Centre are documented in this file.
 The format follows the spirit of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses package versions from `pyproject.toml`.
 
-## [0.11.0]
+## [0.11.1] - 2026-11-10
+
+### Fixed
+- `center` binding wouldn't register hotkey properly because of `trigger_on_release`
+
+
+## [0.11.0] - 2026-11-10
 
 
 ### Added
