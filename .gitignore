@@ -1,9 +1,11 @@
 *.pyc
+*.ps1
 .venv/
 .idea/
+__pycache__/
 dist/
 build/
-__pycache__/
-*.egg-info/
 tests/
 static/
+*.egg-info/
+*.env

@@ -135,7 +135,7 @@ class Centre:
         for k, v in bindings.items():
             match k:
                 case "center":
-                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args, suppress=False, trigger_on_release=True)
+                    keyboard.add_hotkey(v, Utilities.center_hotkey, hotkey_args, suppress=False)
                 case "minimize":
                     keyboard.add_hotkey(v, Utilities.minimize_window_hotkey, suppress=False)
                 case "capture":
